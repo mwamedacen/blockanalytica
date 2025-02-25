@@ -7,8 +7,8 @@ async function main() {
     // Initialize the supervisor agent
     const supervisor = new SupervisorAgent();
 
-    // Example user query
-    const userQuery = "Check if wallet CRVidEDtEUTYZisCxBZkpELzhQc9eauMLR3FWg74tReL has any copy traders";
+    // Get user query from command line arguments or use default example
+    const userQuery = process.argv[2] || "Check if wallet CRVidEDtEUTYZisCxBZkpELzhQc9eauMLR3FWg74tReL has any copy traders";
     
     console.log(`User query: "${userQuery}"`);
     console.log("Processing...");
@@ -21,6 +21,7 @@ async function main() {
     
     if (result && typeof result === 'object') {
       if ('target_wallet' in result) {
+        // Handle CopyTraderResult
         const copyTraderResult = result as CopyTraderResult;
         console.log(`Target Wallet: ${copyTraderResult.target_wallet}`);
         console.log(`Total Copy Traders Found: ${copyTraderResult.total_copy_traders_found}`);
@@ -37,8 +38,12 @@ async function main() {
           console.log("\nNo potential copy traders found.");
         }
       } else {
+        // Handle other structured results
         console.log(JSON.stringify(result, null, 2));
       }
+    } else if (typeof result === 'string') {
+      // Handle string results (like ENS resolution)
+      console.log(result);
     } else {
       console.log(result);
     }

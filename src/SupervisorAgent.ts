@@ -1,10 +1,12 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage } from "@langchain/core/messages";
 import { CopyTraderDetectorAgent } from "./agents/CopyTraderDetectorAgent";
+import { ENSWalletIdentifierAgent } from "./agents/ENSWalletIdentifierAgent";
 
 // Define available agent classes
 const AVAILABLE_AGENTS = [
-  CopyTraderDetectorAgent
+  CopyTraderDetectorAgent,
+  ENSWalletIdentifierAgent
 ];
 
 // Simple agent info interface
@@ -112,6 +114,8 @@ export class SupervisorAgent {
 
       // Execute the appropriate method based on the agent type
       if (selection.agentName === "CopyTraderDetectorAgent") {
+        return await selectedAgent.instance.processQuery(userInput);
+      } else if (selection.agentName === "ENSWalletIdentifierAgent") {
         return await selectedAgent.instance.processQuery(userInput);
       }
       

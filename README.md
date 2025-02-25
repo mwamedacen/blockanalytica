@@ -38,7 +38,7 @@ The system is built using LangChain's Supervisor pattern ([LangGraph Agent Super
 - SafeSignersTool (Safe/multisig account signers retriever): TBD
 
 **Identity Resolution Tools:**
-- ENSLookupTool (ENS domain retriever): TBD
+- ENSLookupTool (ENS domain retriever): it would resolve the ens domain by issueing a call to ethereum rpc
 - EtherscanTagTool (Etherscan tag retriever): TBD
 - ArkhamTagTool (Arkham intelligence tag retriever): TBD
 - DeBankUserTool (DeBank user retriever): TBD
@@ -63,10 +63,12 @@ The system is built using LangChain's Supervisor pattern ([LangGraph Agent Super
 ### Agents
 
 **Discovery Agents:**
-- TokenFinder (Token finder agent): TBD
-- WalletIdentifier (Wallet identity agent): TBD
-- TwitterResolver (Twitter account resolver agent): TBD
-- SideWalletsFinder (Side wallets discoverer): TBD
+- TokenFinderAgent (Token finder agent): TBD
+- WalletIdentifierAgent (Wallet identity agent): TBD
+- ENSWalletIdentifierAgent (Resolve wallet agent): given an ens domain it will resolve the address using ENSLookupTool
+- ENSFinderAgent (ens finder agent): TBD
+- TwitterResolverAgent (Twitter account resolver agent): TBD
+- SideWalletsFinderAgent (Side wallets discoverer): TBD
 
 **Trading Pattern Agents:**
 - CopyTraderDetectorAgent (Copy trading detector agent): Analyzes potential copy trading behavior by:
