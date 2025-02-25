@@ -53,7 +53,7 @@ export class SideWalletsFinderAgent {
     1. Extract the wallet address from the user query
     2. Use all available tools to analyze relationships between wallets
     3. Return a concise list of related wallets in the following format:
-       - {wallet_address} - intel: {found through bidirectional transfers/swap activity/etc}
+       - {wallet_address} - intel: {intel} where intel is short human readable sentence explaining which tools got used
     
     If no related wallets are found, return "No related wallets found."
     `;
