@@ -70,7 +70,7 @@ The system is built using LangChain's Supervisor pattern ([LangGraph Agent Super
 - ENSWalletIdentifierAgent (Resolve wallet agent): given an ens domain it will resolve the address using ENSLookupTool
 - ENSFinderAgent (ens finder agent): TBD
 - TwitterResolverAgent (Twitter account resolver agent): TBD
-- SideWalletsFinderAgent (Side wallets discoverer): given a wallet address, it would first rely on BidrectionalTransfersTool to get the addresses that transferred from and to that address
+- SideWalletsFinderAgent (Side wallets discoverer): given a wallet address, it would rely on BidrectionalTransfersTool and FundingSourceTool (recursively using it till no more funding address)
 
 **Trading Pattern Agents:**
 - CopyTraderDetectorAgent (Copy trading detector agent): Analyzes potential copy trading behavior by:
