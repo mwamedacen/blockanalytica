@@ -36,6 +36,8 @@ The system is built using LangChain's Supervisor pattern ([LangGraph Agent Super
 - InteractionPatternTool (Interaction pattern retriever): TBD
 - BridgeTransactionTool (Bridge transaction retriever): TBD
 - SafeSignersTool (Safe/multisig account signers retriever): TBD
+- BidrectionalTransfersTool (check bidirectional transfers): rely on dune query 4776661 to collect bi direectional data
+- RecursiveFundingAddressTool (check funding address recursively) : TBD
 
 **Identity Resolution Tools:**
 - ENSLookupTool (ENS domain retriever): it would resolve the ens domain by issueing a call to ethereum rpc
@@ -68,7 +70,7 @@ The system is built using LangChain's Supervisor pattern ([LangGraph Agent Super
 - ENSWalletIdentifierAgent (Resolve wallet agent): given an ens domain it will resolve the address using ENSLookupTool
 - ENSFinderAgent (ens finder agent): TBD
 - TwitterResolverAgent (Twitter account resolver agent): TBD
-- SideWalletsFinderAgent (Side wallets discoverer): TBD
+- SideWalletsFinderAgent (Side wallets discoverer): given a wallet address, it would first rely on BidrectionalTransfersTool to get the addresses that transferred from and to that address
 
 **Trading Pattern Agents:**
 - CopyTraderDetectorAgent (Copy trading detector agent): Analyzes potential copy trading behavior by:

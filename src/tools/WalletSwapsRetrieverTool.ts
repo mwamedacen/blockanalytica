@@ -24,7 +24,7 @@ export const WalletSwapsRetrieverTool = tool(
   async ({ wallet_address, start_date, end_date, limit }: z.infer<typeof WalletSwapsRetrieverSchema>) => {
     try {
       const duneClient = getDuneClient();
-      const DUNE_QUERY_ID = 4772832; // As specified in the README
+      const DUNE_QUERY_ID = 4777215; // As specified in the README
       
       // Prepare query parameters
       const queryParameters = [

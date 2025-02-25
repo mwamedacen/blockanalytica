@@ -2,11 +2,13 @@ import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage } from "@langchain/core/messages";
 import { CopyTraderDetectorAgent } from "./agents/CopyTraderDetectorAgent";
 import { ENSWalletIdentifierAgent } from "./agents/ENSWalletIdentifierAgent";
+import { SideWalletsFinderAgent } from "./agents/SideWalletsFinderAgent";
 
 // Define available agent classes
 const AVAILABLE_AGENTS = [
   CopyTraderDetectorAgent,
-  ENSWalletIdentifierAgent
+  ENSWalletIdentifierAgent,
+  SideWalletsFinderAgent
 ];
 
 // Simple agent info interface
@@ -116,6 +118,8 @@ export class SupervisorAgent {
       if (selection.agentName === "CopyTraderDetectorAgent") {
         return await selectedAgent.instance.processQuery(userInput);
       } else if (selection.agentName === "ENSWalletIdentifierAgent") {
+        return await selectedAgent.instance.processQuery(userInput);
+      } else if (selection.agentName === "SideWalletsFinderAgent") {
         return await selectedAgent.instance.processQuery(userInput);
       }
       

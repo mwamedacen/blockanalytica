@@ -27,7 +27,7 @@ export const TokenSwapsRetrieverTool = tool(
   async ({ token_address, side, start_date, end_date, limit }: z.infer<typeof TokenSwapsRetrieverSchema>) => {
     try {
       const duneClient = getDuneClient();
-      const DUNE_QUERY_ID = 4772807; // As specified in the README
+      const DUNE_QUERY_ID = 4777218; // As specified in the README
       
       // Prepare query parameters
       const queryParameters = [
