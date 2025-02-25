@@ -1,15 +1,26 @@
 import { ChatOpenAI } from "@langchain/openai";
-import { HumanMessage } from "@langchain/core/messages";
-import { CopyTraderDetectorAgent } from "./agents/CopyTraderDetectorAgent";
-import { ENSWalletIdentifierAgent } from "./agents/ENSWalletIdentifierAgent";
-import { SideWalletsFinderAgent } from "./agents/SideWalletsFinderAgent";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { ChatOllama } from "@langchain/ollama";
+import { createSupervisor } from "@langchain/langgraph-supervisor";
+import { 
+  createCopyTraderDetectorAgent, 
+  COPY_TRADER_DETECTOR_DESCRIPTION,
+} from "./agents/CopyTraderDetectorAgent.ts";
+import { 
+  createENSWalletIdentifierAgent, 
+  ENS_WALLET_IDENTIFIER_DESCRIPTION,
+} from "./agents/ENSWalletIdentifierAgent.ts";
+import { 
+  createSideWalletsFinderAgent, 
+  SIDE_WALLETS_FINDER_DESCRIPTION,
+} from "./agents/SideWalletsFinderAgent.ts";
 
-// Define available agent classes
-const AVAILABLE_AGENTS = [
-  CopyTraderDetectorAgent,
-  ENSWalletIdentifierAgent,
-  SideWalletsFinderAgent
-];
+
+// Define the plan step interface
+interface PlanStep {
+  agent: string;
+  reason: string;
+}
 
 // Simple agent info interface
 interface AgentInfo {
@@ -19,7 +30,8 @@ interface AgentInfo {
 }
 
 export class SupervisorAgent {
-  private llm: ChatOpenAI;
+  private planningLLM: ChatOllama;
+  private executionLLM: ChatOpenAI;
   private agents: AgentInfo[] = [];
 
   constructor() {
@@ -29,25 +41,42 @@ export class SupervisorAgent {
       throw new Error("OPENAI_API_KEY environment variable is required");
     }
 
-    // Initialize LLM for the supervisor
-    this.llm = new ChatOpenAI({
+    // Initialize planning LLM (Ollama with deepseek-r1:14b)
+    this.planningLLM = new ChatOllama({
+      baseUrl: "http://127.0.0.1:11434",
+      model: "deepseek-r1:14b",
+      temperature: 0,
+    });
+
+    // Initialize execution LLM for the supervisor
+    this.executionLLM = new ChatOpenAI({
       modelName: "gpt-4o",
       temperature: 0,
-      openAIApiKey
+      openAIApiKey,
     });
 
     // Initialize all available agents
-    for (const AgentClass of AVAILABLE_AGENTS) {
-      this.agents.push({
-        name: AgentClass.name,
-        description: AgentClass.description,
-        instance: new AgentClass()
-      });
-    }
+    this.agents = [
+      {
+        name: "CopyTraderDetectorAgent",
+        description: COPY_TRADER_DETECTOR_DESCRIPTION,
+        instance: createCopyTraderDetectorAgent(),
+      },
+      {
+        name: "ENSWalletIdentifierAgent",
+        description: ENS_WALLET_IDENTIFIER_DESCRIPTION,
+        instance: createENSWalletIdentifierAgent(),
+      },
+      {
+        name: "SideWalletsFinderAgent",
+        description: SIDE_WALLETS_FINDER_DESCRIPTION,
+        instance: createSideWalletsFinderAgent(),
+      }
+    ];
   }
 
   /**
-   * Process a user query and route to the appropriate agent
+   * Process a user query and route to the appropriate agent(s) using LangGraph Supervisor
    */
   async processQuery(userInput: string): Promise<any> {
     console.log(`Processing user query: "${userInput}"`);
@@ -57,34 +86,42 @@ export class SupervisorAgent {
       .map(agent => `- ${agent.name}: ${agent.description}`)
       .join('\n');
 
-    // Create the prompt for agent selection
-    const prompt = `
-    You are an expert blockchain analysis supervisor. Your task is to analyze the user query and select the most appropriate specialized agent to handle it.
+    // Create the prompt for planning
+    const planningPrompt = `
+    You are an expert blockchain analysis supervisor. Your task is to analyze the user query and create a plan for how to process it using the available specialized agents.
 
     Available agents:
     ${agentDescriptions}
 
-    User query: "${userInput}"
+    Based on the user query, create a plan for how to process it. The plan should include:
+    1. Which agent(s) should be used
+    2. In what order they should be used
+    3. How their results should be combined
 
-    Based on the user query, determine which agent should handle this query.
     Respond in the following JSON format only:
     {
-      "agentName": "Name of the selected agent",
-      "reasoning": "Brief explanation of why this agent was selected"
+      "plan": [
+        {
+          "agent": "Name of the agent to use",
+          "reason": "Why this agent should be used"
+        }
+      ],
+      "final_analysis": "How to combine the results of the agents"
     }
     `;
     
     try {
-      // Ask the LLM to select the appropriate agent
-      const response = await this.llm.invoke([
-        new HumanMessage(prompt)
+      // Ask the planning LLM to create a plan
+      const planResponse = await this.planningLLM.invoke([
+        new SystemMessage(planningPrompt),
+        new HumanMessage(userInput)
       ]);
 
-      // Parse the response to get the selected agent
-      let selection;
-      const content = typeof response.content === 'string' 
-        ? response.content 
-        : JSON.stringify(response.content);
+      // Parse the response to get the plan
+      let plan: { plan: PlanStep[], final_analysis: string };
+      const content = typeof planResponse.content === 'string' 
+        ? planResponse.content 
+        : JSON.stringify(planResponse.content);
       
       try {
         // Try to extract JSON from the content
@@ -92,41 +129,73 @@ export class SupervisorAgent {
                           content.match(/{[\s\S]*}/);
                           
         if (jsonMatch) {
-          selection = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+          plan = JSON.parse(jsonMatch[1] || jsonMatch[0]);
         } else {
           throw new Error("No valid JSON found in response");
         }
       } catch (error: any) {
-        console.error("Error parsing agent selection:", error);
-        throw new Error("Failed to parse agent selection");
+        console.error("Error parsing plan:", error);
+        throw new Error("Failed to parse plan");
       }
       
-      if (!selection) {
-        throw new Error("Failed to determine the appropriate agent for this query");
-      }
-
-      console.log(`Selected agent: ${selection.agentName}`);
-      
-      // Find the selected agent
-      const selectedAgent = this.agents.find(a => a.name === selection.agentName);
-      
-      if (!selectedAgent) {
-        throw new Error(`Agent ${selection.agentName} not found`);
+      if (!plan) {
+        throw new Error("Failed to create a plan for processing the query");
       }
 
-      // Execute the appropriate method based on the agent type
-      if (selection.agentName === "CopyTraderDetectorAgent") {
-        return await selectedAgent.instance.processQuery(userInput);
-      } else if (selection.agentName === "ENSWalletIdentifierAgent") {
-        return await selectedAgent.instance.processQuery(userInput);
-      } else if (selection.agentName === "SideWalletsFinderAgent") {
-        return await selectedAgent.instance.processQuery(userInput);
-      }
+      console.log("Plan created:", JSON.stringify(plan, null, 2));
       
-      throw new Error(`No execution method defined for ${selection.agentName}`);
+      // Create a map of agent names to their instances
+      const agents = this.agents.map(agent => agent.instance)
+      
+      const supervisorPrompt = `
+      You are a blockchain analysis supervisor agent responsible for orchestrating multiple specialized agents to analyze blockchain data.
+
+      Your task is to execute the following plan by invoking the appropriate agents in the specified order:
+      ${JSON.stringify(plan, null, 2)}
+
+      For each step in the plan:
+      1. Invoke the specified agent with the user's query
+      2. Collect and store the agent's response
+      3. Use the response as context for subsequent agent invocations if needed
+
+      Follow these guidelines:
+      - Execute agents in series when their outputs depend on each other
+      - Execute agents in parallel when their tasks are independent
+      - Combine the results according to the final_analysis instructions in the plan
+      - Maintain clear traceability of which agent produced which findings
+      - Format the final response in a clear, structured way
+
+      Return a comprehensive analysis that synthesizes all agent findings according to the plan's final_analysis directive.
+      `;
+
+      // Create the supervisor with the plan and agents
+      const supervisor = await createSupervisor({
+        llm: this.executionLLM,
+        agents,
+        prompt: supervisorPrompt,
+      });
+
+      const app = supervisor.compile();
+      
+      // Execute the plan using the supervisor
+      // Note: We're using the supervisor's invoke method directly
+      const result = await app.invoke({
+        messages: [new HumanMessage(userInput)],
+      }, {
+        configurable: {
+          thread_id : Math.random()
+        }
+      });
+      
+      const lastMessage = result.messages[result.messages.length - 1];
+      console.log('FINAL MESSAGE', lastMessage)
+      return lastMessage.content;
     } catch (error: any) {
       console.error("Error processing query:", error);
-      throw new Error(`Query processing failed: ${error.message}`);
+      
+      // Fallback to the old method if the supervisor approach fails
+      console.log("Falling back to direct agent selection...");
     }
   }
+
 } 

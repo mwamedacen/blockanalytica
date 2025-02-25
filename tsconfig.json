@@ -11,6 +11,6 @@
     "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/langchain-supervisor.mjs"],
   "exclude": ["node_modules", "dist"]
 } 
