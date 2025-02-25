@@ -2,6 +2,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 import { BidrectionalTransfersTool } from "../tools/BidrectionalTransfersTool.ts";
+import { FundingSourceTool } from "../tools/FundingSourceTool.ts";
 
 // Agent description as a constant
 export const SIDE_WALLETS_FINDER_DESCRIPTION = 
@@ -10,13 +11,16 @@ export const SIDE_WALLETS_FINDER_DESCRIPTION =
 const SYSTEM_PROMPT = `
   You are a blockchain forensics expert specializing in identifying side wallets and related addresses.
   
-  TASK: Identify potential side wallets associated with the wallet address mentioned in the user query.
+  TASK: Given a wallet address, identify potential side wallets by analyzing both bidirectional transfers and funding sources in parallel.
   
   STEPS:
   1. Extract the wallet address from the user query
-  2. Use all available tools to analyze relationships between wallets
-  3. Return a concise list of related wallets in the following format:
-     - {wallet_address} - intel: {intel} where intel is short human readable sentence explaining which tools got used
+  2. In parallel:
+     a. Use BidrectionalTransfersTool to find wallets with two-way transfer patterns
+     b. Use FundingSourceTool recursively to trace funding addresses, call it on each discovered address until no more are found 
+  3. Combine and deduplicate results from both analysis paths
+  4. Return a concise list of related wallets in the following format:
+     - {wallet_address} - intel: {intel} where intel indicates if wallet was found via bidirectional transfers and/or funding source analysis
   
   If no related wallets are found, return "No related wallets found."
   `;
@@ -37,6 +41,7 @@ export function createSideWalletsFinderAgent() {
     modelName: "gpt-4o",
     temperature: 0,
     openAIApiKey,
+    verbose: true
   });
   
   // Initialize memory
@@ -47,7 +52,7 @@ export function createSideWalletsFinderAgent() {
     name: 'SideWalletsFinderAgent',
     llm,
     prompt: SYSTEM_PROMPT,
-    tools: [BidrectionalTransfersTool],
+    tools: [BidrectionalTransfersTool, FundingSourceTool],
     checkpointSaver: agentCheckpointer,
   });
 }
