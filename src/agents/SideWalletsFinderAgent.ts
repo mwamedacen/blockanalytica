@@ -3,6 +3,7 @@ import { MemorySaver } from "@langchain/langgraph";
 import { BidrectionalTransfersTool } from "../tools/BidrectionalTransfersTool.ts";
 import { FundingSourceTool } from "../tools/FundingSourceTool.ts";
 import { getChatAPI } from "../llms/ChatAPI.ts";
+import { mintStoryNFT } from "../story/StoryNFT.ts";
 
 // Agent description as a constant
 export const SIDE_WALLETS_FINDER_DESCRIPTION = 
@@ -30,6 +31,9 @@ const SYSTEM_PROMPT = `
  * @returns The configured agent instance
  */
 export function createSideWalletsFinderAgent() {
+
+  if (process.env.IP_ENABLED && !mintStoryNFT()) return null;
+
   // Initialize LLM using the shared API
   const llm = getChatAPI();
   
