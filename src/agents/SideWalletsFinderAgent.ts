@@ -1,12 +1,12 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 import { BidrectionalTransfersTool } from "../tools/BidrectionalTransfersTool.ts";
 import { FundingSourceTool } from "../tools/FundingSourceTool.ts";
+import { getChatAPI } from "../llms/ChatAPI.ts";
 
 // Agent description as a constant
 export const SIDE_WALLETS_FINDER_DESCRIPTION = 
-  "Identifies potential side wallets associated with a target wallet by analyzing bidirectional transfer patterns.";
+  "Identifies potential side wallets associated with a target wallet by analyzing bidirectional transfer patterns. Wallet addresses could be Ethereum or Solana.";
 
 const SYSTEM_PROMPT = `
   You are a blockchain forensics expert specializing in identifying side wallets and related addresses.
@@ -30,18 +30,8 @@ const SYSTEM_PROMPT = `
  * @returns The configured agent instance
  */
 export function createSideWalletsFinderAgent() {
-  // Check for required API keys
-  const openAIApiKey = process.env.OPENAI_API_KEY;
-  if (!openAIApiKey) {
-    throw new Error("OPENAI_API_KEY environment variable is required");
-  }
-
-  // Initialize LLM
-  const llm = new ChatOpenAI({
-    modelName: "gpt-4o",
-    temperature: 0,
-    openAIApiKey,
-  });
+  // Initialize LLM using the shared API
+  const llm = getChatAPI();
   
   // Initialize memory
   const agentCheckpointer = new MemorySaver();

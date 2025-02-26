@@ -1,4 +1,3 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { createSupervisor } from "@langchain/langgraph-supervisor";
 import { 
@@ -13,6 +12,7 @@ import {
   createSideWalletsFinderAgent, 
   SIDE_WALLETS_FINDER_DESCRIPTION,
 } from "./agents/SideWalletsFinderAgent.ts";
+import { getChatAPI, getReasoningChatAPI } from "./llms/ChatAPI.ts";
 
 
 // Define the plan step interface
@@ -29,35 +29,20 @@ interface AgentInfo {
 }
 
 export class SupervisorAgent {
-  private planningLLM: ChatOpenAI;
-  private executionLLM: ChatOpenAI;
+  private planningLLM;
+  private executionLLM;
   private agents: AgentInfo[] = [];
 
   constructor() {
     // Check for required API keys
-    const openAIApiKey = process.env.OPENAI_API_KEY;
-    if (!openAIApiKey) {
-      throw new Error("OPENAI_API_KEY environment variable is required");
+    const oraAPIKey = process.env.ORA_API_KEY;
+    if (!oraAPIKey) {
+      throw new Error("ORA_API_KEY environment variable is required");
     }
 
-    // Initialize planning LLM (Ollama with deepseek-r1:14b)
-    // this.planningLLM = new ChatOllama({
-    //   baseUrl: "http://127.0.0.1:11434",
-    //   model: "deepseek-r1:14b",
-    //   temperature: 0,
-    // });
-    this.planningLLM = new ChatOpenAI({
-      modelName: "gpt-4o",
-      temperature: 0,
-      openAIApiKey,
-    });
-
-    // Initialize execution LLM for the supervisor
-    this.executionLLM = new ChatOpenAI({
-      modelName: "gpt-4o",
-      temperature: 0,
-      openAIApiKey,
-    });
+    // Initialize planning and execution LLMs using the shared API
+    this.planningLLM = getReasoningChatAPI();
+    this.executionLLM = getChatAPI();
 
     // Initialize all available agents
     this.agents = [
@@ -192,7 +177,7 @@ export class SupervisorAgent {
       });
       
       const lastMessage = result.messages[result.messages.length - 1];
-      console.log('FINAL MESSAGE', lastMessage)
+      console.log('FINAL MESSAGE', lastMessage);
       return lastMessage.content;
     } catch (error: any) {
       console.error("Error processing query:", error);
@@ -201,5 +186,4 @@ export class SupervisorAgent {
       console.log("Falling back to direct agent selection...");
     }
   }
-
-} 
+}

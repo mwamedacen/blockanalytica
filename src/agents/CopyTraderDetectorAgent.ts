@@ -1,8 +1,8 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 import { WalletSwapsRetrieverTool } from "../tools/WalletSwapsRetrieverTool.ts";
 import { TokenSwapsRetrieverTool } from "../tools/TokenSwapsRetrieverTool.ts";
+import { getChatAPI } from "../llms/ChatAPI.ts";
 
 // Agent description as a constant
 export const COPY_TRADER_DETECTOR_DESCRIPTION = 
@@ -47,18 +47,8 @@ const SYSTEM_PROMPT = `
  * @returns The configured agent instance
  */
 export function createCopyTraderDetectorAgent() {
-  // Check for required API keys
-  const openAIApiKey = process.env.OPENAI_API_KEY;
-  if (!openAIApiKey) {
-    throw new Error("OPENAI_API_KEY environment variable is required");
-  }
-
-  // Initialize LLM
-  const llm = new ChatOpenAI({
-    modelName: "gpt-4o",
-    temperature: 0,
-    openAIApiKey,
-  });
+  // Initialize LLM using the shared API
+  const llm = getChatAPI();
 
   // Initialize memory
   const agentCheckpointer = new MemorySaver();
