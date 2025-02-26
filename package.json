@@ -4,9 +4,12 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/src/index.js",
-    "dev": "tsx src/index.ts",
+    "build": "next build",
+    "start": "next start",
+    "dev": "next dev",
+    "build:api": "tsc",
+    "start:api": "node dist/src/index.js",
+    "dev:api": "tsx src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -22,10 +25,15 @@
     "@langchain/ollama": "^0.2.0",
     "@langchain/openai": "^0.4.4",
     "dotenv": "^16.4.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "viem": "^2.23.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "tsx": "^4.19.3"
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "tsx": "^4.19.3",
+    "typescript": "5.7.3"
   }
 }

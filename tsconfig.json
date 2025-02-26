@@ -9,8 +9,30 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "rootDir": ".",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src/**/*.ts", "src/langchain-supervisor.mjs"],
-  "exclude": ["node_modules", "dist"]
-} 
+  "include": [
+    "src/**/*.ts",
+    "src/langchain-supervisor.mjs",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
