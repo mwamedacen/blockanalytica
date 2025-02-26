@@ -41,7 +41,6 @@ export function createSideWalletsFinderAgent() {
     modelName: "gpt-4o",
     temperature: 0,
     openAIApiKey,
-    verbose: true
   });
   
   // Initialize memory

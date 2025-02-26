@@ -34,7 +34,14 @@ export const BidrectionalTransfersTool = tool(
         query_parameters: queryParameters
       };
       
+      const queryTimerId = `BidrectionalTransfersTool-${wallet_address}-${Date.now()}`;
+      console.log(`[${new Date().toISOString()}] Starting Dune query for bidirectional transfers - wallet: ${wallet_address}, queryId: ${DUNE_QUERY_ID}`);
+      console.time(queryTimerId);
+      
       const response = await duneClient.runQuery(queryArgs);
+      
+      console.timeEnd(queryTimerId);
+      console.log(`[${new Date().toISOString()}] Completed Dune query for bidirectional transfers - wallet: ${wallet_address}, rows returned: ${response.result?.rows?.length || 0}`);
 
       // Just return the raw rows without post-processing
       return JSON.stringify(response.result?.rows || []);
