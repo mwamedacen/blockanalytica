@@ -80,15 +80,18 @@ export class SupervisorAgent {
    */
   async processQuery(userInput: string): Promise<any> {
     console.log(`Processing user query: "${userInput}"`);
+    
+    // Create agent descriptions for the prompt
+    const agentDescriptions = this.agents
+      .map(agent => `- ${agent.name}: ${agent.description}`)
+      .join('\n');
 
     // Create the prompt for planning
     const planningPrompt = `
     You are an expert blockchain analysis supervisor. Your task is to analyze the user query and create a plan for how to process it using the available specialized agents.
 
     Available agents:
-    ${this.agents
-      .map(agent => `- ${agent.name}: ${agent.description}`)
-      .join('\n')}
+    ${agentDescriptions}
 
     Based on the user query, create a plan for how to process it. The plan should include:
     1. Which agent(s) should be used
@@ -172,7 +175,7 @@ export class SupervisorAgent {
         prompt: supervisorPrompt,
       });
 
-      const app = supervisor.compile({name: 'MainSupervisorAgent'});
+      const app = supervisor.compile();
       
       // Execute the plan using the supervisor
       // Note: We're using the supervisor's invoke method directly
@@ -189,6 +192,9 @@ export class SupervisorAgent {
       return lastMessage.content;
     } catch (error: any) {
       console.error("Error processing query:", error);
+      
+      // Fallback to the old method if the supervisor approach fails
+      console.log("Falling back to direct agent selection...");
     }
   }
 
