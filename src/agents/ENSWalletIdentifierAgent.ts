@@ -1,11 +1,11 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 import { ENSLookupTool } from "../tools/ENSLookupTool.ts";
+import { getChatAPI } from "../llms/ChatAPI.ts";
 
 // Agent description as a constant
 export const ENS_WALLET_IDENTIFIER_DESCRIPTION = 
-  "Resolves ENS domains to their corresponding Ethereum addresses using the ENS protocol.";
+  "Resolves ENS domains to their corresponding Ethereum addresses using the ENS protocol. A ens domain MUST be in the format of X.eth";
 
 const SYSTEM_PROMPT = `
   You are an ENS domain resolution expert. Your task is to extract ENS domains from the user query and resolve them to Ethereum addresses.
@@ -27,18 +27,8 @@ const SYSTEM_PROMPT = `
  * @returns The configured agent instance
  */
 export function createENSWalletIdentifierAgent() {
-  // Check for required API keys
-  const openAIApiKey = process.env.OPENAI_API_KEY;
-  if (!openAIApiKey) {
-    throw new Error("OPENAI_API_KEY environment variable is required");
-  }
-
-  // Initialize LLM
-  const llm = new ChatOpenAI({
-    modelName: "gpt-4o",
-    temperature: 0,
-    openAIApiKey,
-  });
+  // Initialize LLM using the shared API
+  const llm = getChatAPI();
 
   // Initialize memory
   const agentCheckpointer = new MemorySaver();
