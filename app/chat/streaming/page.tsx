@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import AgentStatus from '../components/AgentStatus';
+import AgentStatus from '../../components/AgentStatus';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -13,16 +13,26 @@ interface AgentStatusData {
   completedAgents: string[];
 }
 
-export default function ChatPage() {
+export default function StreamingChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [agentStatus, setAgentStatus] = useState<AgentStatusData | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Clean up event source on unmount
+  useEffect(() => {
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,9 +49,14 @@ export default function ChatPage() {
     // Reset agent status for new query
     setAgentStatus(null);
     
+    // Close any existing event source
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+    
     try {
-      // Send to API endpoint
-      const response = await fetch('/api/chat', {
+      // First make the initial request to start processing
+      const response = await fetch('/api/chat/streaming', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,22 +66,71 @@ export default function ChatPage() {
         }),
       });
       
-      const data = await response.json();
-      
-      // Update agent status with data from response
-      if (data.agentStatus) {
-        setAgentStatus(data.agentStatus);
+      if (!response.body) {
+        throw new Error('No response body');
       }
       
-      // Add assistant response to chat
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.response }]);
+      // Set up event source for streaming responses
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      
+      let buffer = '';
+      
+      // Read the stream
+      const processStream = async () => {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
+              break;
+            }
+            
+            // Decode the chunk and add to buffer
+            buffer += decoder.decode(value, { stream: true });
+            
+            // Process any complete SSE messages
+            const lines = buffer.split('\n\n');
+            buffer = lines.pop() || '';
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = JSON.parse(line.substring(6));
+                
+                if (data.type === 'status') {
+                  // Update agent status
+                  setAgentStatus(data.agentStatus);
+                } else if (data.type === 'result') {
+                  // Final result
+                  setAgentStatus(data.agentStatus);
+                  setMessages((prev) => [...prev, { 
+                    role: 'assistant', 
+                    content: data.response 
+                  }]);
+                  setIsLoading(false);
+                } else if (data.type === 'error') {
+                  throw new Error(data.error);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error reading stream:', error);
+          setMessages((prev) => [...prev, { 
+            role: 'assistant', 
+            content: 'Sorry, there was an error processing your request.' 
+          }]);
+          setIsLoading(false);
+        }
+      };
+      
+      processStream();
     } catch (error) {
       console.error('Error sending message:', error);
       setMessages((prev) => [...prev, { 
         role: 'assistant', 
         content: 'Sorry, there was an error processing your request.' 
       }]);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -74,7 +138,7 @@ export default function ChatPage() {
   return (
     <div className="chat-container">
       <div className="chat-header">
-        <h1>BlockAnalytica Chat</h1>
+        <h1>Real-time Agent Status</h1>
       </div>
       
       <div className="chat-columns">
@@ -133,7 +197,7 @@ export default function ChatPage() {
           
           {!isLoading && !agentStatus && messages.length === 0 && (
             <div className="empty-agent-status">
-              <p>Agent activity will appear here during processing</p>
+              <p>Agent activity will appear here in real-time</p>
             </div>
           )}
         </div>

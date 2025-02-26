@@ -11,7 +11,14 @@ export default function Home() {
           href="/chat" 
           className="btn btn-primary"
         >
-          Start Chat
+          Standard Chat
+        </Link>
+        
+        <Link 
+          href="/chat/streaming" 
+          className="btn btn-secondary"
+        >
+          Real-time Agent Status
         </Link>
       </div>
     </main>

@@ -84,6 +84,15 @@ body {
   background-color: #2563eb;
 }
 
+.btn-secondary {
+  background-color: #4b5563;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #374151;
+}
+
 /* Form elements */
 .input {
   padding: 0.75rem;
@@ -104,7 +113,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-width: 1024px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
 }
@@ -113,12 +122,46 @@ body {
   background-color: #1f2937;
   padding: 1rem;
   border-radius: 0.5rem 0.5rem 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .chat-header h1 {
   margin: 0;
   font-size: 1.5rem;
   color: white;
+}
+
+.chat-columns {
+  display: flex;
+  flex-grow: 1;
+  gap: 1rem;
+}
+
+.chat-messages-column {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.agent-status-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #1f2937;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  overflow-y: auto;
+}
+
+.agent-status-column h2 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  color: white;
+  padding: 0.5rem;
+  border-bottom: 1px solid #374151;
 }
 
 .chat-messages {
@@ -128,6 +171,7 @@ body {
   background-color: #374151;
   display: flex;
   flex-direction: column;
+  border-radius: 0.5rem;
 }
 
 .chat-message {
@@ -157,14 +201,17 @@ body {
   height: 100%;
 }
 
-.empty-chat p {
+.empty-chat p, .empty-agent-status p {
   color: #9ca3af;
+  text-align: center;
+  font-size: 0.875rem;
 }
 
 .chat-input-form {
   background-color: #1f2937;
   padding: 1rem;
   border-radius: 0 0 0.5rem 0.5rem;
+  margin-top: 1rem;
 }
 
 .input-container {
@@ -226,4 +273,71 @@ body {
 .hero p {
   font-size: 1.25rem;
   margin-bottom: 2rem;
+}
+
+/* Agent Status Component */
+.agent-status {
+  font-size: 0.875rem;
+  color: #e5e7eb;
+}
+
+.agent-status h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #f9fafb;
+  font-weight: 500;
+}
+
+.agent-group {
+  margin-bottom: 0.75rem;
+}
+
+.agent-group h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: #d1d5db;
+}
+
+.agent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.agent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+  border-radius: 0.25rem;
+  background-color: #374151;
+}
+
+.agent-item.active {
+  border-left: 3px solid #3b82f6;
+}
+
+.agent-item.completed {
+  border-left: 3px solid #10b981;
+}
+
+.agent-name {
+  font-weight: 500;
+}
+
+.agent-indicator {
+  height: 0.5rem;
+  width: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.agent-item.active .agent-indicator {
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  animation: pulse 1.5s infinite;
 }
