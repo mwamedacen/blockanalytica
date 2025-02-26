@@ -1,6 +1,5 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { ChatOllama } from "@langchain/ollama";
 import { createSupervisor } from "@langchain/langgraph-supervisor";
 import { 
   createCopyTraderDetectorAgent, 
@@ -30,7 +29,7 @@ interface AgentInfo {
 }
 
 export class SupervisorAgent {
-  private planningLLM: ChatOllama;
+  private planningLLM: ChatOpenAI;
   private executionLLM: ChatOpenAI;
   private agents: AgentInfo[] = [];
 
@@ -42,10 +41,15 @@ export class SupervisorAgent {
     }
 
     // Initialize planning LLM (Ollama with deepseek-r1:14b)
-    this.planningLLM = new ChatOllama({
-      baseUrl: "http://127.0.0.1:11434",
-      model: "deepseek-r1:14b",
+    // this.planningLLM = new ChatOllama({
+    //   baseUrl: "http://127.0.0.1:11434",
+    //   model: "deepseek-r1:14b",
+    //   temperature: 0,
+    // });
+    this.planningLLM = new ChatOpenAI({
+      modelName: "gpt-4o",
       temperature: 0,
+      openAIApiKey,
     });
 
     // Initialize execution LLM for the supervisor
