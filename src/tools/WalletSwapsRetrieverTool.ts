@@ -1,6 +1,7 @@
-import { DuneClient, QueryParameter, RunQueryArgs } from "@duneanalytics/client-sdk";
+import { QueryParameter, RunQueryArgs } from "@duneanalytics/client-sdk";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
+import { runDuneQuery } from "../utils/DuneClient";
 
 // Define the schema for the tool's input
 const WalletSwapsRetrieverSchema = z.object({
@@ -10,20 +11,14 @@ const WalletSwapsRetrieverSchema = z.object({
   limit: z.number().default(10).describe("Maximum number of swaps to retrieve")
 });
 
-// Initialize Dune client
-const getDuneClient = () => {
-  const duneApiKey = process.env.DUNE_API_KEY;
-  if (!duneApiKey) {
-    throw new Error("DUNE_API_KEY environment variable is required");
-  }
-  return new DuneClient(duneApiKey);
-};
-
 // Create the tool using the functional approach
 export const WalletSwapsRetrieverTool = tool(
   async ({ wallet_address, start_date, end_date, limit }: z.infer<typeof WalletSwapsRetrieverSchema>) => {
     try {
-      const duneClient = getDuneClient();
+      // FIXME: hack to always query during same date ranges; UNDO AFTER OPTIM
+      const start_date = '2024-12-01 00:00';
+      const end_date = '2025-01-27 00:00';
+
       const DUNE_QUERY_ID = 4777215; // As specified in the README
       
       // Prepare query parameters
@@ -44,7 +39,7 @@ export const WalletSwapsRetrieverTool = tool(
       console.log(`[${new Date().toISOString()}] Starting Dune query for wallet swaps - wallet: ${wallet_address}, dates: ${start_date} to ${end_date}, limit: ${limit}, queryId: ${DUNE_QUERY_ID}`);
       console.time(queryTimerId);
       
-      const response = await duneClient.runQuery(queryArgs);
+      const response = await runDuneQuery(queryArgs);
       
       console.timeEnd(queryTimerId);
       console.log(`[${new Date().toISOString()}] Completed Dune query for wallet swaps - wallet: ${wallet_address}, rows returned: ${response.result?.rows?.length || 0}`);

@@ -27,7 +27,7 @@ const SYSTEM_PROMPT = `
     "agentName": "ENSWalletIdentifierAgent",
     "message": string, // A human-readable summary of the analysis
     "data": {
-      "resolved_address": string // The resolved Ethereum address, or null if resolution failed
+      "wallet_address": string // The resolved Ethereum address
     }
   }
   Return ONLY this JSON structure, properly formatted, with no additional text or explanation.

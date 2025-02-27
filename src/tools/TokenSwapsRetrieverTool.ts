@@ -1,8 +1,8 @@
-import { DuneClient, QueryParameter, RunQueryArgs } from "@duneanalytics/client-sdk";
+import { QueryParameter, RunQueryArgs } from "@duneanalytics/client-sdk";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import { SwapSide } from "../types";
-
+import { runDuneQuery } from "../utils/DuneClient";
 
 // Define the schema for the tool's input
 const TokenSwapsRetrieverSchema = z.object({
@@ -13,20 +13,10 @@ const TokenSwapsRetrieverSchema = z.object({
   limit: z.number().default(50).describe("Maximum number of swaps to retrieve")
 });
 
-// Initialize Dune client
-const getDuneClient = () => {
-  const duneApiKey = process.env.DUNE_API_KEY;
-  if (!duneApiKey) {
-    throw new Error("DUNE_API_KEY environment variable is required");
-  }
-  return new DuneClient(duneApiKey);
-};
-
 // Create the tool using the functional approach
 export const TokenSwapsRetrieverTool = tool(
   async ({ token_address, side, start_date, end_date, limit }: z.infer<typeof TokenSwapsRetrieverSchema>) => {
     try {
-      const duneClient = getDuneClient();
       const DUNE_QUERY_ID = 4777218; // As specified in the README
       
       // Prepare query parameters
@@ -48,7 +38,7 @@ export const TokenSwapsRetrieverTool = tool(
       console.log(`[${new Date().toISOString()}] Starting Dune query for token swaps - token: ${token_address}, side: ${side}, dates: ${start_date} to ${end_date}, limit: ${limit}, queryId: ${DUNE_QUERY_ID}`);
       console.time(queryTimerId);
       
-      const response = await duneClient.runQuery(queryArgs);
+      const response = await runDuneQuery(queryArgs);
       
       console.timeEnd(queryTimerId);
       console.log(`[${new Date().toISOString()}] Completed Dune query for token swaps - token: ${token_address}, side: ${side}, rows returned: ${response.result?.rows?.length || 0}`);

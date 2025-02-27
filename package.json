@@ -10,7 +10,8 @@
     "build:api": "tsc",
     "start:api": "node dist/src/index.js",
     "dev:api": "tsx src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:cache": "tsx src/utils/CachedFunctionExample.ts"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +32,7 @@
     "pinata-web3": "^0.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "redis": "^4.7.0",
     "viem": "^2.23.5",
     "zod": "^3.24.2"
   },

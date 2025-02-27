@@ -38,12 +38,12 @@ export async function POST(request: NextRequest) {
     // to actually track agent status and return it
     const response = await supervisorAgent.processQuery(message);
 
-    const miniChat = getMiniChatAPI()
+    // const miniChat = getMiniChatAPI()
 
-    const formattedResponse = await miniChat.invoke([
-      new SystemMessage("you are a helpful assistant that formats json responses into a human readable format (string). The data is about blockchain so you want to include links to explorers like etherscan or solscan"),
-      new HumanMessage(JSON.stringify(response)),
-    ]);
+    // const formattedResponse = await miniChat.invoke([
+    //   new SystemMessage("you are a helpful assistant that formats json responses into a human readable format (string). The data is about blockchain so you want to include links to explorers like etherscan or solscan"),
+    //   new HumanMessage(JSON.stringify(response)),
+    // ]);
     // Mock some agents that would be running
     // In a real implementation, the SupervisorAgent would provide this information
     completedAgents.push(
@@ -53,7 +53,8 @@ export async function POST(request: NextRequest) {
     );
     
     return NextResponse.json({ 
-      response: formattedResponse.content,
+      //response: formattedResponse.content,
+      response,
       agentStatus: {
         activeAgents: [],
         completedAgents
