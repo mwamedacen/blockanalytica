@@ -20,6 +20,7 @@ import {
   createEarlyTokenBuyersFinderAgent,
   EARLY_TOKEN_BUYERS_FINDER_DESCRIPTION,
 } from "./agents/EarlyTokenBuyersFinderAgent.ts";
+import { createTokenResolverAgent, TOKEN_RESOLVER_DESCRIPTION } from "./agents/TokenResolverAgent.ts";
 import { getChatAPI, getReasoningChatAPI } from "./llms/ChatAPI.ts";
 
 
@@ -78,7 +79,12 @@ export class SupervisorAgent {
         name: "EarlyTokenBuyersFinderAgent",
         description: EARLY_TOKEN_BUYERS_FINDER_DESCRIPTION,
         instance: createEarlyTokenBuyersFinderAgent(),
-      }
+      },
+      {
+        name: "TokenResolverAgent",
+        description: TOKEN_RESOLVER_DESCRIPTION,
+        instance: createTokenResolverAgent(),
+      },
     ];
   }
 
@@ -100,10 +106,13 @@ export class SupervisorAgent {
     Available agents:
     ${agentDescriptions}
 
+    IMPORTANT: Some agents can handle arrays of data in a single call, while others can only process one input at a time. For agents that can only handle single inputs, you'll need to plan for multiple sequential calls if there are multiple inputs to process.
+
     Based on the user query, create a plan for how to process it. The plan should include:
     1. Which agent(s) should be used
     2. In what order they should be used
-    3. How their results should be combined
+    3. Whether each agent needs multiple calls for multiple inputs
+    4. How their results should be combined
 
     Respond in the following JSON format only:
     {
@@ -164,6 +173,13 @@ export class SupervisorAgent {
       1. Invoke the specified agent with the user's query
       2. Collect and store the agent's response
       3. Use the response as context for subsequent agent invocations if needed
+
+      Important note about agent capabilities:
+      - Some agents can handle arrays of data in a single invocation
+      - Other agents can only process one data point at a time
+      - When multiple data points need to be processed by an agent that handles one at a time,
+        the planner will include multiple steps with the same agent name
+      - Follow the plan exactly - if an agent appears multiple times, invoke it separately for each step
 
       Follow these guidelines:
       - Execute agents in series when their outputs depend on each other
