@@ -1,8 +1,35 @@
 import { SPGNFTContractAddress, client } from './utils/utils'
 import { uploadJSONToIPFS } from './utils/uploadToIpfs'
 import { createHash } from 'crypto'
+import { Address, toHex } from 'viem'
+import { mintNFT } from './utils/mintNFT'
+import { NFTContractAddress, NonCommercialSocialRemixingTermsId, account } from './utils/utils'
 
-export async function mintStoryNFT() {
+
+export async function mintAndRegisterIpAndMakeDerivative() {
+
+    const childIp = await client.ipAsset.mintAndRegisterIpAndMakeDerivative({
+        spgNftContract: SPGNFTContractAddress,
+        allowDuplicates: true,
+        derivData: {
+            parentIpIds: ["0xaF8ce70dB5FEb32d6Ff61F050DfB16A7F77D940c" as Address],
+            licenseTermsIds: [1],
+            maxMintingFee: 0,
+            maxRts: 100_000_000,
+            maxRevenueShare: 100,
+        },
+        // NOTE: The below metadata is not configured properly. It is just to make things simple.
+        // See `simpleMintAndRegister.ts` for a proper example.
+        ipMetadata: {
+            ipMetadataURI: 'https://ipfs.io/ipfs/bafkreicj54w4hijl7q2nw33qat4h2muxsbgskrtwv4ghpjbsmsmi5iu2ce',
+            nftMetadataURI: 'https://ipfs.io/ipfs/bafkreicj54w4hijl7q2nw33qat4h2muxsbgskrtwv4ghpjbsmsmi5iu2ce',
+        },
+        txOptions: { waitForTransaction: true },
+    })
+    console.log(`Derivative IPA created and linked at transaction hash ${childIp.txHash}, IPA ID: ${childIp.ipId}}`)
+};  
+
+export async function mintStoryIP() {
     // 1. Set up your IP Metadata
     //
     // Docs: https://docs.story.foundation/docs/ipa-metadata-standard
