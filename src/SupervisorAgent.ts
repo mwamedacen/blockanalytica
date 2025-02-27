@@ -16,6 +16,10 @@ import {
   createHistoricalEnsDomainsFinderAgent,
   HISTORICAL_ENS_DOMAINS_FINDER_DESCRIPTION,
 } from "./agents/HistoricalEnsDomainsFinderAgent.ts";
+import {
+  createEarlyTokenBuyersFinderAgent,
+  EARLY_TOKEN_BUYERS_FINDER_DESCRIPTION,
+} from "./agents/EarlyTokenBuyersFinderAgent.ts";
 import { getChatAPI, getReasoningChatAPI } from "./llms/ChatAPI.ts";
 
 
@@ -69,6 +73,11 @@ export class SupervisorAgent {
         name: "HistoricalEnsDomainFinderAgent",
         description: HISTORICAL_ENS_DOMAINS_FINDER_DESCRIPTION,
         instance: createHistoricalEnsDomainsFinderAgent(),
+      },
+      {
+        name: "EarlyTokenBuyersFinderAgent",
+        description: EARLY_TOKEN_BUYERS_FINDER_DESCRIPTION,
+        instance: createEarlyTokenBuyersFinderAgent(),
       }
     ];
   }
