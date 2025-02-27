@@ -29,7 +29,9 @@
   "include": [
     "src/**/*.ts",
     "src/langchain-supervisor.mjs",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx"
   ],
   "exclude": [
     "node_modules",

@@ -45,7 +45,9 @@ const SYSTEM_PROMPT = `
  */
 export function createSideWalletsFinderAgent() {
 
-  if (process.env.IP_ENABLED && !mintAndRegisterIpAndMakeDerivative()) return null;
+  if (process.env.IP_ENABLED === 'true') {
+    if (!mintAndRegisterIpAndMakeDerivative()) return null;
+  }
 
   // Initialize LLM using the shared API
   const llm = getChatAPI();
