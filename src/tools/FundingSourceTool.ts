@@ -38,7 +38,7 @@ export const FundingSourceTool = tool(
       console.log(`[${new Date().toISOString()}] Starting Dune query for funding source - wallet: ${wallet_address}, queryId: ${DUNE_QUERY_ID}`);
       console.time(queryTimerId);
       
-      const response = await duneClient.getLatestResult(queryArgs);
+      const response = await duneClient.runQuery(queryArgs);
       
       console.timeEnd(queryTimerId);
       console.log(`[${new Date().toISOString()}] Completed Dune query for funding source - wallet: ${wallet_address}, rows returned: ${response.result?.rows?.length || 0}`);

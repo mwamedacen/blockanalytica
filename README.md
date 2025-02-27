@@ -1,19 +1,19 @@
-# Blockchain Forensics Tool
+# Blockchain Forensics & Intelligence Tool
 
-A powerful agentic application for comprehensive blockchain address analysis, combining LLMs with specialized blockchain data retrieval tools to provide deep insights into wallet activities, relationships, and token movements.
+A powerful agentic application for comprehensive blockchain address analysis, combining LLMs with specialized blockchain data retrieval tools to provide deep insights into wallet activities, relationships, and token movements. Each agent's intellectual property is securely stored and verified on the Story Protocol blockchain.
 
 ## 🔍 Overview
 
-This project implements a sophisticated blockchain analysis system using NodeJS and the LangChain framework with a Supervisor architecture. The application orchestrates specialized agents and tools to retrieve, analyze, and visualize detailed information about wallet addresses across multiple blockchains (EVM, Solana).
+This project implements a sophisticated blockchain analysis system using NodeJS and the LangChain framework with a Supervisor architecture. The application orchestrates specialized agents and tools to retrieve, analyze, and visualize detailed information about wallet addresses across multiple blockchains (EVM, Solana). Each agent's unique IP and algorithms are registered and protected through Story Protocol's IP management system.
 
 ## 🏗️ Architecture
 
-The system is built using LangChain's Supervisor pattern ([LangGraph Agent Supervisor](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/)), which enables complex workflows where a supervisor agent coordinates specialized sub-agents to complete forensic tasks.
+The system is built using LangChain's Supervisor pattern ([LangGraph Agent Supervisor](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/)), which enables complex workflows where a supervisor agent coordinates specialized sub-agents to complete forensic tasks. The intellectual property of each agent's decision-making processes and specialized algorithms is registered on Story Protocol.
 
 ### Components
 
 - **SupervisorAgent**: Orchestrates the entire analysis workflow, delegates tasks to specialized agents, and synthesizes final results
-- **Agents**: Specialized modules that solve complex tasks by coordinating multiple tools
+- **Agents**: Specialized modules with protected IP that solve complex tasks by coordinating multiple tools
 - **Tools**: Atomic units that retrieve specific data points from various blockchain and off-chain sources
 
 ## 🛠️ Agent & Tool Architecture
@@ -62,7 +62,7 @@ The system is built using LangChain's Supervisor pattern ([LangGraph Agent Super
 - SafeContractTool (Safe contract detector): TBD
 - BridgeContractTool (Bridge contract detector): TBD
 
-### Agents
+### Agents (All IPs Registered on Story Protocol)
 
 **Discovery Agents:**
 - TokenFinderAgent (Token finder agent): TBD
