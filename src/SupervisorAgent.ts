@@ -21,6 +21,10 @@ import {
   EARLY_TOKEN_BUYERS_FINDER_DESCRIPTION,
 } from "./agents/EarlyTokenBuyersFinderAgent.ts";
 import { createTokenResolverAgent, TOKEN_RESOLVER_DESCRIPTION } from "./agents/TokenResolverAgent.ts";
+import {
+  createOnchainKitAgent,
+  ONCHAIN_KIT_AGENT_DESCRIPTION,
+} from "./agents/OnchainKitAgent.ts";
 import { getChatAPI, getReasoningChatAPI } from "./llms/ChatAPI.ts";
 
 
@@ -85,6 +89,11 @@ export class SupervisorAgent {
         description: TOKEN_RESOLVER_DESCRIPTION,
         instance: createTokenResolverAgent(),
       },
+      {
+        name: "OnchainKitAgent",
+        description: ONCHAIN_KIT_AGENT_DESCRIPTION,
+        instance: createOnchainKitAgent(),
+      }
     ];
   }
 

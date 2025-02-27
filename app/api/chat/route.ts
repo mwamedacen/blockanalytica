@@ -33,27 +33,45 @@ export async function POST(request: NextRequest) {
     const activeAgents: string[] = [];
     const completedAgents: string[] = [];
     
+    // Check if the message is related to OnchainKit
+    const isOnchainKitRequest = /wallet|swap|transaction|connect|token|frame/i.test(message);
+    
     // Process the query through supervisor agent
-    // Note: This is a mock implementation - you'll need to modify SupervisorAgent.ts
-    // to actually track agent status and return it
     const response = await supervisorAgent.processQuery(message);
-
-    // const miniChat = getMiniChatAPI()
-
-    // const formattedResponse = await miniChat.invoke([
-    //   new SystemMessage("you are a helpful assistant that formats json responses into a human readable format (string). The data is about blockchain so you want to include links to explorers like etherscan or solscan"),
-    //   new HumanMessage(JSON.stringify(response)),
-    // ]);
-    // Mock some agents that would be running
-    // In a real implementation, the SupervisorAgent would provide this information
-    completedAgents.push(
-      "ENSWalletIdentifierAgent", 
-      "CopyTraderDetectorAgent", 
-      "SideWalletsFinderAgent"
-    );
+    
+    // Check if the response is from the OnchainKitAgent
+    let isOnchainKitResponse = false;
+    
+    // Check if the response has aggregatedAgentsData
+    if (response && 
+        typeof response === 'object' && 
+        response.aggregatedAgentsData && 
+        Array.isArray(response.aggregatedAgentsData)) {
+      
+      // Check if any agent in aggregatedAgentsData is OnchainKitAgent
+      isOnchainKitResponse = response.aggregatedAgentsData.some(
+        (agent: any) => agent.agentName === 'OnchainKitAgent'
+      );
+    } else if (response && 
+               typeof response === 'object' && 
+               'agentName' in response && 
+               response.agentName === 'OnchainKitAgent') {
+      isOnchainKitResponse = true;
+    }
+    
+    // If it's an OnchainKit response, add the OnchainKitAgent to completed agents
+    if (isOnchainKitResponse) {
+      completedAgents.push("OnchainKitAgent");
+    } else {
+      // Otherwise, add the other agents to completed agents
+      completedAgents.push(
+        "ENSWalletIdentifierAgent", 
+        "CopyTraderDetectorAgent", 
+        "SideWalletsFinderAgent"
+      );
+    }
     
     return NextResponse.json({ 
-      //response: formattedResponse.content,
       response,
       agentStatus: {
         activeAgents: [],

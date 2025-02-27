@@ -147,9 +147,22 @@ export default function StreamingChatPage() {
           <div className="chat-messages">
             {messages.length === 0 ? (
               <div className="empty-chat">
-                <p>
-                  Start a conversation with BlockAnalytica...
-                </p>
+                <h2>Welcome to Real-time Agent Status</h2>
+                <p>I'm your blockchain forensics assistant with real-time agent status updates.</p>
+                
+                <div className="agent-capabilities-chat">
+                  <h3>How can I help you today?</h3>
+                  <ul>
+                    <li><strong>Analyze wallet addresses</strong> - "Analyze this wallet: 0x123... and find related wallets"</li>
+                    <li><strong>Investigate tokens</strong> - "Tell me about the security of token 0xabc..."</li>
+                    <li><strong>Detect trading patterns</strong> - "Is anyone copy trading this wallet: 0x456..."</li>
+                    <li><strong>Resolve identities</strong> - "Who owns the ENS domain vitalik.eth?"</li>
+                    <li><strong>Analyze smart contracts</strong> - "Check if this contract is secure: 0x789..."</li>
+                  </ul>
+                </div>
+                
+                <p className="agent-status-info">Watch the right panel to see our specialized agents working in real-time as they process your request.</p>
+                <p className="start-prompt">Type your question below to begin...</p>
               </div>
             ) : (
               <>
