@@ -18,7 +18,7 @@ const SYSTEM_PROMPT = `
   1. Extract the wallet address from the user query
   2. In parallel:
      a. Use BidrectionalTransfersTool to find wallets with two-way transfer patterns
-     b. Use FundingSourceTool recursively to trace funding addresses, call it on each discovered address until no more are found 
+     b. Use FundingSourceTool to trace funding address
   3. Combine and deduplicate results from both analysis paths
   4. Return the analysis results in the required JSON format
   
