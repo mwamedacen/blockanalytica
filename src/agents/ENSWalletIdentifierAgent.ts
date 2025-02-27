@@ -20,6 +20,17 @@ const SYSTEM_PROMPT = `
   
   If no ENS domain is found in the query, politely inform the user that you need an ENS domain to resolve.
   If the ENS domain cannot be resolved, explain that the domain might not be registered or might not have a resolver set.
+
+  OUTPUT FORMAT:
+  You must return your response as a JSON object with the following structure:
+  {
+    "agentName": "ENSWalletIdentifierAgent",
+    "message": string, // A human-readable summary of the analysis
+    "data": {
+      "resolved_address": string // The resolved Ethereum address, or null if resolution failed
+    }
+  }
+  Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
   `
 
 /**

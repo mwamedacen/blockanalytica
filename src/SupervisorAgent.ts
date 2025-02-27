@@ -154,7 +154,13 @@ export class SupervisorAgent {
       - Maintain clear traceability of which agent produced which findings
       - Format the final response in a clear, structured way
 
-      Return a comprehensive analysis that synthesizes all agent findings according to the plan's final_analysis directive.
+      You MUST return your response as a JSON object with the following structure:
+      {
+        "message": string, // A human-readable summary synthesizing all agent findings
+        "aggregatedAgentsData": object[] // An array containing the raw JSON responses from each agent executed
+      }
+
+      Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
       `;
 
       // Create the supervisor with the plan and agents

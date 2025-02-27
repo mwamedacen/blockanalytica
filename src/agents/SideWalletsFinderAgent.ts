@@ -20,10 +20,23 @@ const SYSTEM_PROMPT = `
      a. Use BidrectionalTransfersTool to find wallets with two-way transfer patterns
      b. Use FundingSourceTool recursively to trace funding addresses, call it on each discovered address until no more are found 
   3. Combine and deduplicate results from both analysis paths
-  4. Return a concise list of related wallets in the following format:
-     - {wallet_address} - intel: {intel} where intel indicates if wallet was found via bidirectional transfers and/or funding source analysis
+  4. Return the analysis results in the required JSON format
   
-  If no related wallets are found, return "No related wallets found."
+  OUTPUT FORMAT:
+  You must return your response as a JSON object with the following structure:
+  {
+    "agentName": "SideWalletsFinderAgent",
+    "message": string, // A human-readable summary of the analysis
+    "data": [
+      {
+        "wallet_address": string,
+        "intel_description": string, // Indicates if wallet was found via bidirectional transfers and/or funding source analysis
+      }
+    ]
+  }
+  Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
+  
+  If no related wallets are found, return the JSON with an empty data array and appropriate message.
   `;
 
 /**

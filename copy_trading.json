@@ -1,0 +1,83 @@
+{
+  "message": "The analysis for the wallet CRVidEDtEUTYZisCxBZkpELzhQc9eauMLR3FWg74tReL identified potential copy trading behavior across three tokens: ∅, REGENT, and Seek. A total of 5 unique wallets were found to exhibit copy trading patterns, consistently trading the same tokens shortly after the target wallet.",
+  "aggregatedAgentsData": [
+    {
+      "agentName": "CopyTraderDetectorAgent",
+      "message": "Analysis of potential copy trading behavior for the wallet CRVidEDtEUTYZisCxBZkpELzhQc9eauMLR3FWg74tReL has been completed. The analysis focused on three tokens: ∅, REGENT, and Seek. A total of 5 unique wallets were identified as potential copy traders across these tokens.",
+      "data": [
+        {
+          "token_address": "J2bUGZDxRDpsVfjZqKwn6yYCUKFmqzHgt8UajhGtpump",
+          "target_trader": {
+            "volume_traded": 144818.4375,
+            "tx_hash": "4iKQVxV2Mz4yvpTmXnMFpAmWYsAcTbnuGFexYwYhKFWEs3LDyv4rocdCjURBr9JUWK9VQcHH415QzAaEW1PDaZnf"
+          },
+          "copy_traders": [
+            {
+              "tx_hash": "2rutZ7wjYzZc2sKnGW9oe1YHqiYyGMSnfNBTa2gduUXMtycEzbyguYJ5eb3EJ8M6fYqyUixkFLgdE79jGKnn2Wke",
+              "volume_traded": 25505.44770936635,
+              "wallet_address": "4BuDdA6WmTiAxfN8QC7nMrSNQFUSXa8etkThay3WW5vs"
+            },
+            {
+              "tx_hash": "3KG2w2PGj3zuWpNTHBMTR3wxEh6XuXhBCKwaMtf39S3DDf3jx883hRKCScJ8uYDcPxqe14BXwDHFEW7W6dzGPQFf",
+              "volume_traded": 21520.920951569493,
+              "wallet_address": "36htyDqbEzsMUtEejmsRQ9CfhXNwHXLnuK5fwzAQJssh"
+            },
+            {
+              "tx_hash": "552rnmEjW3deoTZ9LwvpvBACPw8ouBc6yB3L6ULCsGH65yw9VxtDX4omQhnGnn5MKdTVxmAwZBsXsZ8vqzKnnt3K",
+              "volume_traded": 19373.607,
+              "wallet_address": "G3K9kWBDUmtnxypFZSzZDdMS9d8GWnZUrbsvobSJkwVG"
+            }
+          ]
+        },
+        {
+          "token_address": "6HgJHzGpq3fSLmkepsaC8F3VtpUWfXcG4hmUaf4Vpump",
+          "target_trader": {
+            "volume_traded": 113842.10014867451,
+            "tx_hash": "41WTfZJrWuFpj9JTxxmhHUFBzCvnWdEVZm7bTCbmU5EYU4WQ76dSGCtfjzynkvXBNpnNFcEnD3fPugjtRAfXQMy9"
+          },
+          "copy_traders": [
+            {
+              "tx_hash": "26w92rvSJK15Pv38RGAVsRdrSDsbVxY6hcoWHYax9B2uNrxx7B4tvYyFWVyP3qWFZSxv6WJH7a4weVGQYbY2DNyD",
+              "volume_traded": 96109.1473270997,
+              "wallet_address": "3YwDjijANnV6yLBpQ1EoaCP37j6QJKwThNZVq6u2G1Lp"
+            },
+            {
+              "tx_hash": "2EdqnvGsnzHziS4tQQtQ6CXoyqNFuJKQmb2d4M3p7k8uLYcvYi6b8eY3eNGnXu9CK4re1mWyLNjPjipn9XekqB4e",
+              "volume_traded": 21916.669703023897,
+              "wallet_address": "9Lyt4QPHTtJNfqHF7a1oTTH4qcWEzxJE8NTwbqhkzZ2B"
+            },
+            {
+              "tx_hash": "51NnEjBytMorNT6fPteyKUvfSfAyHRRtFUyAp3kTrwZUJHjr1LLy3cwsX8oaxrQ9RXtdAAMeVqGunScHa6Audbm",
+              "volume_traded": 20244.28846382971,
+              "wallet_address": "8MqRTAQnjhDYH7TWS1b1DjFog4CLZfySWE5cZeotG2VW"
+            }
+          ]
+        },
+        {
+          "token_address": "8FqXr6dw5NHA2TtwFeDz6q9p7y9uWyoEdZmpXqqUpump",
+          "target_trader": {
+            "volume_traded": 65079.65520000001,
+            "tx_hash": "28fZHGowbpQoMzH3r6x2YnaomirhyXtxUNZu5Kd1gENsX5WC9dZZj4orCwAa6DQdszjEuYQnkNqK8JvnKmCjidJo"
+          },
+          "copy_traders": [
+            {
+              "tx_hash": "3WmzU8EEk3oWh1BAU7SqTcam6kpnmqGMxqqbZSX9U34tYiQnpqf63ewfNqtJNKvDPNGH8zNeJcEDLpJJ4azndAJQ",
+              "volume_traded": 66922.42577967908,
+              "wallet_address": "FZUAkRGWmDZA462YDMuR8RY7RLEfo4xSLALUMb5RqpZa"
+            },
+            {
+              "tx_hash": "3JT2E3oGeLdnjUNE4jtZ6Ejxf7NBBDqUKj3CdxSRYPoGXmbsHxTVuo4a7sv8uFed1k2aMff5RJc8urRM9wvZCPWD",
+              "volume_traded": 33004.1253605826,
+              "wallet_address": "8MqRTAQnjhDYH7TWS1b1DjFog4CLZfySWE5cZeotG2VW"
+            },
+            {
+              "tx_hash": "2w48anzyBP7MBxW3QTMEYvyY4Xa1b4wSp1Mh2nrEfDjNW1YfCCMPugQ3BUhPCUkfurB3yjK5uZFpzKnR2cY5vFbq",
+              "volume_traded": 27999.42124291652,
+              "wallet_address": "8MqRTAQnjhDYH7TWS1b1DjFog4CLZfySWE5cZeotG2VW"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

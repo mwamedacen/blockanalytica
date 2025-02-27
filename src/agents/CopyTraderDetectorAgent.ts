@@ -39,7 +39,30 @@ const SYSTEM_PROMPT = `
          * The total combined volume traded by ALL copy traders
          * The ratio between these volumes (copy traders volume / target wallet volume)
      - Include 3 example copy trader addresses (these are just samples, not the complete list)
-  Return the analysis in form of text and nothign else.
+
+  3. Output Format:
+     You must return your analysis as a JSON object with the following structure:
+     {
+       "agentName": "CopyTraderDetectorAgent",
+       "message": string, // A human-readable summary of the analysis
+       "data": [
+         {
+           "token_address": string,
+           "target_trader": {
+             "volume_traded": number,
+             "tx_hash": string
+           },
+           "copy_traders": [
+             {
+               "tx_hash": string,
+               "volume_traded": number,
+               "wallet_address": string
+             }
+           ]
+         }
+       ]
+     }
+  Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
   </IMPORTANT_CONSTRAINTS>
   `;
 /**

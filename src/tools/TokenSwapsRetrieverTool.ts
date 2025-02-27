@@ -48,7 +48,7 @@ export const TokenSwapsRetrieverTool = tool(
       console.log(`[${new Date().toISOString()}] Starting Dune query for token swaps - token: ${token_address}, side: ${side}, dates: ${start_date} to ${end_date}, limit: ${limit}, queryId: ${DUNE_QUERY_ID}`);
       console.time(queryTimerId);
       
-      const response = await duneClient.runQuery(queryArgs);
+      const response = await duneClient.getLatestResult(queryArgs);
       
       console.timeEnd(queryTimerId);
       console.log(`[${new Date().toISOString()}] Completed Dune query for token swaps - token: ${token_address}, side: ${side}, rows returned: ${response.result?.rows?.length || 0}`);
