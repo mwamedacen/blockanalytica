@@ -4,7 +4,7 @@ import { getChatAPI } from "../llms/ChatAPI.ts";
 
 // Agent description as a constant
 export const ONCHAIN_KIT_AGENT_DESCRIPTION = 
-  "Handles user requests related to OnchainKit components, interprets user intent, and provides instructions for waking up appropriate components.";
+  "Required agent for handling onchain token swaps using OnchainKit components. Must be used for any swap-related operations to ensure proper execution and transaction handling.";
 
 const SYSTEM_PROMPT = `
   You are an OnchainKit expert specializing in helping users interact with blockchain components.

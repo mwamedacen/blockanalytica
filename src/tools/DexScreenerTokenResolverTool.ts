@@ -13,6 +13,11 @@ interface DexScreenerPair {
     name: string;
     symbol: string;
   };
+  quoteToken: {
+    address: string;
+    name: string;
+    symbol: string;
+  };
   liquidity: {
     usd: number;
   };
@@ -53,7 +58,7 @@ export const DexScreenerTokenResolverTool = tool(
       // Query DexScreener API with error handling
       let response;
       try {
-        response = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${ticker}`);
+        response = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${ticker} ${chainId}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -75,7 +80,11 @@ export const DexScreenerTokenResolverTool = tool(
       // Filter pairs for the specified chain and sort by liquidity
       try {
         const chainPairs = data.pairs
-          .filter(pair => pair.chainId.toLowerCase() === chainId)
+          .filter(pair => 
+            pair.chainId.toLowerCase() === chainId && 
+            (pair.baseToken.symbol.toLowerCase() === ticker.toLowerCase() || 
+             pair.quoteToken.symbol.toLowerCase() === ticker.toLowerCase())
+          )
           .sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
 
         console.log(`[DexScreenerTokenResolver] Filtered to ${chainPairs.length} pairs on ${chain}`);
@@ -90,14 +99,23 @@ export const DexScreenerTokenResolverTool = tool(
 
         // Get the pair with highest liquidity
         const bestPair = chainPairs[0];
-        console.log(`[DexScreenerTokenResolver] Selected best pair: ${bestPair.baseToken.symbol} with $${bestPair.liquidity.usd.toLocaleString()} liquidity`);
+        console.log(`[DexScreenerTokenResolver] Selected best pair: ${bestPair.baseToken.symbol}/${bestPair.quoteToken.symbol} with $${bestPair.liquidity.usd.toLocaleString()} liquidity`);
         
+        // Determine which token in the pair matches our search
+        const baseTokenMatch = bestPair.baseToken.symbol.toLowerCase() === ticker.toLowerCase();
+        const quoteTokenMatch = bestPair.quoteToken.symbol.toLowerCase() === ticker.toLowerCase();
+
+        if (!baseTokenMatch && !quoteTokenMatch) {
+          throw new Error(`Could not find exact symbol match for ${ticker} in pair ${bestPair.baseToken.symbol}/${bestPair.quoteToken.symbol}`);
+        }
+
+        const matchingToken = baseTokenMatch ? bestPair.baseToken : bestPair.quoteToken;
         return JSON.stringify({
           success: true,
           token: {
-            address: bestPair.baseToken.address,
-            name: bestPair.baseToken.name,
-            symbol: bestPair.baseToken.symbol,
+            address: matchingToken.address,
+            name: matchingToken.name,
+            symbol: matchingToken.symbol,
             chain: chain,
             liquidity_usd: bestPair.liquidity.usd
           }
