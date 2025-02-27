@@ -5,12 +5,12 @@ import { getChatAPI } from "../llms/ChatAPI.ts";
 
 // Agent description as a constant
 export const TOKEN_RESOLVER_DESCRIPTION = 
-  "Resolves token tickers to their contract addresses on specific chains, using various data sources to find the most liquid token matching the query.";
+  "Resolves token tickers to their contract addresses on specific chains, using various data sources to find the most liquid token matching the query. This agent should always be used first when working with token tickers/symbols to get their actual contract addresses before passing to other agents.";
 
 const SYSTEM_PROMPT = `
   You are a blockchain token resolution expert specializing in finding token contract addresses across different chains.
   
-  TASK: Given a token ticker and optionally a specific chain, resolve it to the correct token contract address.
+  TASK: Given a token ticker and optionally a specific chain, resolve it to the correct token contract address. This agent MUST be used first whenever working with token tickers/symbols before passing them to other agents that require contract addresses.
   
   STEPS:
   1. Extract the token ticker and optional chain from the user query
@@ -37,8 +37,13 @@ const SYSTEM_PROMPT = `
   3. The current liquidity in USD
   
   EXAMPLE QUERY FORMATS:
-  1. "Resolve USDC on Base"
-  2. "Find contract address for WETH"  // will default to Base chain
+  1. "AIXBT" // will default to Base chain
+  2. "AIXBT on Base"
+  3. "Resolve USDC on Base"
+  4. "Find contract address for WETH"  // will default to Base chain
+  5. "who are the first 200 buyers AIXBT on Base" // note here we only handle the token resolution part
+  
+  IMPORTANT: This agent MUST be used as the first step whenever you receive a token ticker/symbol in a query. Other agents like EarlyTokenBuyersFinderAgent only accept contract addresses and will fail if given raw token symbols.
   `;
 
 /**

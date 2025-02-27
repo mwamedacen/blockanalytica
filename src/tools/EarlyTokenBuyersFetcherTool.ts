@@ -66,7 +66,7 @@ export const EarlyTokenBuyersFetcherTool = tool(
           )
         : new Set();
 
-      console.log(">>>>>>commonBuyerAddresses", commonBuyerAddresses);
+      console.log(`commonBuyerAddresses size: ${commonBuyerAddresses.size}, first 5:`, Array.from(commonBuyerAddresses).slice(0, 5));
 
       // For each common buyer, collect their transaction details across all tokens
       const commonBuyersData = Array.from(commonBuyerAddresses).map(address => {

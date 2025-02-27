@@ -25,7 +25,7 @@ const DexScreenerTokenResolverSchema = z.object({
 });
 
 // Chain ID mapping
-const CHAIN_IDS = {
+const CHAIN_IDS: { [key: string]: string } = {
   'base': 'base',
   'ethereum': 'ethereum',
   'arbitrum': 'arbitrum',
@@ -36,50 +36,79 @@ const CHAIN_IDS = {
 // Create the tool using the functional approach
 export const DexScreenerTokenResolverTool = tool(
   async ({ ticker, chain }: z.infer<typeof DexScreenerTokenResolverSchema>) => {
+    console.log(`[DexScreenerTokenResolver] Starting resolution for ticker: ${ticker} on chain: ${chain}`);
     try {
-      const chainId = CHAIN_IDS[chain.toLowerCase()];
-      if (!chainId) {
+      // Safely get chain ID
+      const chainLower = chain.toLowerCase();
+      if (!(chainLower in CHAIN_IDS)) {
+        console.warn(`[DexScreenerTokenResolver] Unsupported chain requested: ${chain}`);
         return JSON.stringify({
           success: false,
           error: `Unsupported chain: ${chain}`
         });
       }
+      const chainId = CHAIN_IDS[chainLower];
 
-      // Query DexScreener API
-      const response = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${ticker}`);
-      if (!response.ok) {
-        throw new Error(`DexScreener API error: ${response.statusText}`);
+      console.log(`[DexScreenerTokenResolver] Querying DexScreener API for ${ticker}...`);
+      // Query DexScreener API with error handling
+      let response;
+      try {
+        response = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${ticker}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      } catch (fetchError: any) {
+        console.error(`[DexScreenerTokenResolver] API fetch error: ${fetchError.message}`);
+        throw new Error(`DexScreener API fetch failed: ${fetchError.message}`);
       }
 
-      const data = await response.json() as DexScreenerResponse;
+      let data;
+      try {
+        data = await response.json() as DexScreenerResponse;
+      } catch (parseError: any) {
+        console.error(`[DexScreenerTokenResolver] JSON parse error: ${parseError.message}`);
+        throw new Error('Failed to parse DexScreener API response');
+      }
+
+      console.log(`[DexScreenerTokenResolver] Found ${data.pairs.length} total pairs from DexScreener`);
       
       // Filter pairs for the specified chain and sort by liquidity
-      const chainPairs = data.pairs
-        .filter(pair => pair.chainId.toLowerCase() === chainId)
-        .sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
+      try {
+        const chainPairs = data.pairs
+          .filter(pair => pair.chainId.toLowerCase() === chainId)
+          .sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
 
-      if (chainPairs.length === 0) {
-        return JSON.stringify({
-          success: false,
-          error: `No pairs found for token ${ticker} on chain ${chain}`
-        });
-      }
+        console.log(`[DexScreenerTokenResolver] Filtered to ${chainPairs.length} pairs on ${chain}`);
 
-      // Get the pair with highest liquidity
-      const bestPair = chainPairs[0];
-      
-      return JSON.stringify({
-        success: true,
-        token: {
-          address: bestPair.baseToken.address,
-          name: bestPair.baseToken.name,
-          symbol: bestPair.baseToken.symbol,
-          chain: chain,
-          liquidity_usd: bestPair.liquidity.usd
+        if (chainPairs.length === 0) {
+          console.warn(`[DexScreenerTokenResolver] No pairs found for ${ticker} on ${chain}`);
+          return JSON.stringify({
+            success: false,
+            error: `No pairs found for token ${ticker} on chain ${chain}`
+          });
         }
-      });
+
+        // Get the pair with highest liquidity
+        const bestPair = chainPairs[0];
+        console.log(`[DexScreenerTokenResolver] Selected best pair: ${bestPair.baseToken.symbol} with $${bestPair.liquidity.usd.toLocaleString()} liquidity`);
+        
+        return JSON.stringify({
+          success: true,
+          token: {
+            address: bestPair.baseToken.address,
+            name: bestPair.baseToken.name,
+            symbol: bestPair.baseToken.symbol,
+            chain: chain,
+            liquidity_usd: bestPair.liquidity.usd
+          }
+        });
+      } catch (processingError: any) {
+        console.error(`[DexScreenerTokenResolver] Error processing pairs: ${processingError.message}`);
+        throw new Error(`Failed to process token pairs: ${processingError.message}`);
+      }
     } catch (error: any) {
-      console.error("Error resolving token:", error);
+      console.error(`[DexScreenerTokenResolver] Error resolving token: ${error.message}`);
+      console.error(error.stack);
       return JSON.stringify({
         success: false,
         error: `Failed to resolve token: ${error.message}`

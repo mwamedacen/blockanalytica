@@ -191,12 +191,13 @@ export class SupervisorAgent {
       - Follow the plan exactly - if an agent appears multiple times, invoke it separately for each step
 
       Follow these guidelines:
-      - Execute agents in series when their outputs depend on each other
+      - Execute agents in series when their outputs depend on each other 
       - Execute agents in parallel when their tasks are independent
       - Combine the results according to the final_analysis instructions in the plan
       - Maintain clear traceability of which agent produced which findings
       - Format the final response in a clear, structured way
 
+      When agents execute in series you MUST inject the results of the previous agent as context for the next agent.
       You MUST return your response as a JSON object with the following structure:
       {
         "message": string, // A human-readable summary synthesizing all agent findings
