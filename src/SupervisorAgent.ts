@@ -12,6 +12,10 @@ import {
   createSideWalletsFinderAgent, 
   SIDE_WALLETS_FINDER_DESCRIPTION,
 } from "./agents/SideWalletsFinderAgent.ts";
+import {
+  createHistoricalEnsDomainsFinderAgent,
+  HISTORICAL_ENS_DOMAINS_FINDER_DESCRIPTION,
+} from "./agents/HistoricalEnsDomainsFinderAgent.ts";
 import { getChatAPI, getReasoningChatAPI } from "./llms/ChatAPI.ts";
 
 
@@ -60,6 +64,11 @@ export class SupervisorAgent {
         name: "SideWalletsFinderAgent",
         description: SIDE_WALLETS_FINDER_DESCRIPTION,
         instance: createSideWalletsFinderAgent(),
+      },
+      {
+        name: "HistoricalEnsDomainFinderAgent",
+        description: HISTORICAL_ENS_DOMAINS_FINDER_DESCRIPTION,
+        instance: createHistoricalEnsDomainsFinderAgent(),
       }
     ];
   }

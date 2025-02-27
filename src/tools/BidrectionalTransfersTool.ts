@@ -35,7 +35,7 @@ export const BidrectionalTransfersTool = tool(
       console.log(`[${new Date().toISOString()}] Completed Dune query for bidirectional transfers - wallet: ${wallet_address}, rows returned: ${response.result?.rows?.length || 0}`);
 
       // Just return the raw rows without post-processing
-      return JSON.stringify(response.result?.rows.slice(0,4) || []);
+      return JSON.stringify(response.result?.rows || []);
     } catch (error: any) {
       console.error("Error retrieving bidirectional transfers:", error);
       return JSON.stringify({
