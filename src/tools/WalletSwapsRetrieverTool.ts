@@ -19,7 +19,7 @@ export const WalletSwapsRetrieverTool = tool(
       const start_date = '2024-12-01 00:00';
       const end_date = '2025-01-27 00:00';
 
-      const DUNE_QUERY_ID = 4777215; // As specified in the README
+      const DUNE_QUERY_ID = wallet_address.toLowerCase().startsWith('0x') ? 4789517 : 4777215; // Use EVM query for 0x addresses, Solana query otherwise
       
       // Prepare query parameters
       const queryParameters = [

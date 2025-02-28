@@ -17,7 +17,7 @@ const TokenSwapsRetrieverSchema = z.object({
 export const TokenSwapsRetrieverTool = tool(
   async ({ token_address, side, start_date, end_date, limit }: z.infer<typeof TokenSwapsRetrieverSchema>) => {
     try {
-      const DUNE_QUERY_ID = 4777218; // As specified in the README
+      const DUNE_QUERY_ID = token_address.toLowerCase().startsWith('0x') ? 4789506 : 4777218; // Use EVM query for 0x addresses, Solana query otherwise
       
       // Prepare query parameters
       const queryParameters = [
