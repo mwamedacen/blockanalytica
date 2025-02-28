@@ -31,10 +31,7 @@ export const ENSLookupTool = tool(
       });
       
       if (!address) {
-        return JSON.stringify({ 
-          success: false, 
-          error: `No address found for ENS domain: ${ensName}` 
-        });
+        throw new Error(`No address found for ENS domain: ${ensName}`);
       }
       
       return JSON.stringify({ 
@@ -44,10 +41,7 @@ export const ENSLookupTool = tool(
       });
     } catch (error: any) {
       console.error("Error resolving ENS domain:", error);
-      return JSON.stringify({ 
-        success: false, 
-        error: `Failed to resolve ENS domain: ${error.message}` 
-      });
+      throw new Error(error.message);
     }
   },
   {
