@@ -278,6 +278,14 @@ export default function ChatPage() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (input.trim() && !isLoading) {
+                      handleSubmit(e);
+                    }
+                  }
+                }}
                 placeholder="Ask a question about blockchain data..."
                 className="input"
                 disabled={isLoading}
