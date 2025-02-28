@@ -27,8 +27,8 @@ importers:
         specifier: ^0.2.48
         version: 0.2.48(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2)))(react@19.0.0)
       '@langchain/langgraph-supervisor':
-        specifier: ^0.0.4
-        version: 0.0.4(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))(react@19.0.0)
+        specifier: ^0.0.6
+        version: 0.0.6(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))(react@19.0.0)
       '@langchain/ollama':
         specifier: ^0.2.0
         version: 0.2.0(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2)))
@@ -912,8 +912,8 @@ packages:
       react:
         optional: true
 
-  '@langchain/langgraph-supervisor@0.0.4':
-    resolution: {integrity: sha512-zIBnvFyf+uL9Mo6elR5TH3V75NUHYhswlxqAR9ku7mfMkjbX64P0oMGTZPZLJcb2lsnoeKAFFnMXztb1SI2bZQ==}
+  '@langchain/langgraph-supervisor@0.0.6':
+    resolution: {integrity: sha512-1uxl9aNGt0NOdNAgJip4vEh/k5d508mLu7UBqv/lcGQ9mz3PIrm7xoC4beTS3UZoZ/V42vw1S2eP8V3xLw+HNg==}
     engines: {node: '>=18'}
 
   '@langchain/langgraph@0.2.48':
@@ -924,6 +924,12 @@ packages:
 
   '@langchain/langgraph@0.2.49':
     resolution: {integrity: sha512-CI8M8gz5bp6z1EcrcbKfHzZRGGHF8vYjih6vQTW7t3FEQAYzrLdpE4c7tw/jr7n2/9rb/bUkM7CL9pswUDoZfQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@langchain/core': '>=0.2.36 <0.3.0 || >=0.3.40 < 0.4.0'
+
+  '@langchain/langgraph@0.2.51':
+    resolution: {integrity: sha512-/ODuZIoaUhWeTGM8L524KB0v0pmIqPVW3SIu8WFDksaw7KcD9QWxS3ZKM2PkbE3yTlHsXNmJAjzoBOyE29H4oQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.2.36 <0.3.0 || >=0.3.40 < 0.4.0'
@@ -3684,10 +3690,10 @@ snapshots:
       '@langchain/core': 0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))
       react: 19.0.0
 
-  '@langchain/langgraph-supervisor@0.0.4(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))(react@19.0.0)':
+  '@langchain/langgraph-supervisor@0.0.6(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))(react@19.0.0)':
     dependencies:
       '@langchain/core': 0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))
-      '@langchain/langgraph': 0.2.49(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2)))(react@19.0.0)
+      '@langchain/langgraph': 0.2.51(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2)))(react@19.0.0)
       uuid: 10.0.0
       zod: 3.24.2
     transitivePeerDependencies:
@@ -3705,6 +3711,16 @@ snapshots:
       - react
 
   '@langchain/langgraph@0.2.49(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2)))(react@19.0.0)':
+    dependencies:
+      '@langchain/core': 0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))
+      '@langchain/langgraph-checkpoint': 0.0.15(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2)))
+      '@langchain/langgraph-sdk': 0.0.45(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2)))(react@19.0.0)
+      uuid: 10.0.0
+      zod: 3.24.2
+    transitivePeerDependencies:
+      - react
+
+  '@langchain/langgraph@0.2.51(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2)))(react@19.0.0)':
     dependencies:
       '@langchain/core': 0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))
       '@langchain/langgraph-checkpoint': 0.0.15(@langchain/core@0.3.40(openai@4.85.4(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2)))
@@ -5265,7 +5281,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9)
+      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.0))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -5877,7 +5893,7 @@ snapshots:
 
   resolve-pkg-maps@1.0.0: {}
 
-  retry-axios@2.6.0(axios@1.7.9):
+  retry-axios@2.6.0(axios@1.7.9(debug@4.4.0)):
     dependencies:
       axios: 1.7.9(debug@4.4.0)
 
