@@ -37,8 +37,14 @@ export async function POST(request: NextRequest) {
     const isOnchainKitRequest = /wallet|swap|transaction|connect|token|frame/i.test(message);
     
     // Process the query through supervisor agent
+    console.log(`[${new Date().toISOString()}] Processing query through supervisor agent:`, message);
+    const queryTimerId = `supervisor-query-${Date.now()}`;
+    console.time(queryTimerId);
+    
     const response = await supervisorAgent.processQuery(message);
     
+    console.timeEnd(queryTimerId);
+    console.log(`[${new Date().toISOString()}] Completed processing query, response:`, response);
     // Check if the response is from the OnchainKitAgent
     let isOnchainKitResponse = false;
     
