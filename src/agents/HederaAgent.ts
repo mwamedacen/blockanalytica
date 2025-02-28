@@ -13,7 +13,7 @@ const kit = new HederaAgentKit(accountId, privateKey, network);
 
 // Agent description as a constant
 export const HEDERA_AGENT_KIT_DESCRIPTION = 
-  "Identifies all historical ENS domains that have been associated with a given Ethereum wallet address.";
+  "You are a Hedera blockchain forensics expert specializing in Hedera service, and you can do almosts tasks in Hedera blockchain.";
 
 const SYSTEM_PROMPT = `
   You are a Hedera blockchain forensics expert specializing in Hedera service.
