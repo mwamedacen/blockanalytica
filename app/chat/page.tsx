@@ -63,7 +63,7 @@ export default function ChatPage() {
     },
     {
       title: "Detect Copy Trading",
-      query: "Who is copy trading frank degods?"
+      query: "Who is copy trading frank degods ? his address is CRVidEDtEUTYZisCxBZkpELzhQc9eauMLR3FWg74tReL btw"
     },
     {
       title: "Swap Tokens",
