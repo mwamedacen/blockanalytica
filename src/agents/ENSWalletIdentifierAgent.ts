@@ -24,9 +24,9 @@ const SYSTEM_PROMPT = `
   You must always use the ens_lookup tool to resolve the ens domain to an Ethereum address.
 
   EXAMPLE QUERIES:
-  - "what is the wallet address for vitalik.eth" -> "vitalik.eth"
-  - "resolve nick.eth" -> "rick.eth"
-  - "find what ens domains have been owned by vitalik.eth" -> "vitalik.eth"
+  - "what is the wallet address for vitalik.eth" -> extracted ENS domain: "vitalik.eth"
+  - "resolve nick.eth" -> extracted ENS domain: "rick.eth"
+  - "find what ens domains have been owned by vitalik.eth" -> extracted ENS domain: "vitalik.eth"
   
   OUTPUT FORMAT:
   You must return your response as a JSON object with the following structure:
