@@ -33,8 +33,22 @@ interface OnchainKitAgentResponse {
   };
 }
 
+// Define stream response types
+interface StreamContentResponse {
+  type: 'content';
+  content: string;
+}
+
+interface StreamErrorResponse {
+  type: 'error';
+  error: string;
+}
+
+type StreamResponse = StreamContentResponse | StreamErrorResponse;
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [currentStreamingMessage, setCurrentStreamingMessage] = useState<string>('');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
@@ -75,6 +89,53 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  /**
+   * Processes a single SSE message from the stream
+   */
+  const processStreamMessage = (data: StreamResponse) => {
+    switch (data.type) {
+      case 'content':
+        // Add to or update the streaming message
+        setCurrentStreamingMessage(prev => prev + data.content);
+
+        // Check for OnchainKit response
+        try {
+          const fullMessage = currentStreamingMessage + data.content;
+          let jsonResponse = null;
+          if (fullMessage.includes("```json")) {
+            jsonResponse = JSON.parse(fullMessage.replaceAll("```json", "").replaceAll("```", ""));
+          }
+
+          // Check for OnchainKit agent response
+          if (jsonResponse && 
+              typeof jsonResponse === 'object' && 
+              jsonResponse.aggregatedAgentsData && 
+              Array.isArray(jsonResponse.aggregatedAgentsData)) {
+            
+            const onchainKitAgentData = jsonResponse.aggregatedAgentsData.find(
+              (agent: any) => agent.agentName === 'OnchainKitAgent'
+            );
+
+            if (onchainKitAgentData) {
+              setOnchainKitResponse(onchainKitAgentData);
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing OnchainKit response:', error);
+        }
+        break;
+
+      case 'error':
+        // Handle error response
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: `Error: ${data.error}` 
+        }]);
+        setCurrentStreamingMessage('');
+        break;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -96,8 +157,8 @@ export default function ChatPage() {
     setOnchainKitResponse(null);
     
     try {
-      // Send to API endpoint
-      const response = await fetch('/api/chat', {
+      // Send to streaming API endpoint
+      const response = await fetch('/api/chat/streaming', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,45 +167,39 @@ export default function ChatPage() {
           message: userMessage
         }),
       });
-      
-      console.log("response", response);
-      const responseJson = await response.json();
-      console.log("response.json", responseJson);
-      const stringResponse = (await responseJson).response;
 
-      let jsonResponse = null;
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
 
-      if (stringResponse.includes("```json")) {
-        jsonResponse = JSON.parse(stringResponse.replaceAll("```json", "").replaceAll("```", ""));
-      }
-      
-      // Check for OnchainKit agent response
-      let onchainKitAgentData = null;
-      
-      // First check if the response has aggregatedAgentsData
-      if (jsonResponse && 
-          typeof jsonResponse === 'object' && 
-          jsonResponse.aggregatedAgentsData && 
-          Array.isArray(jsonResponse.aggregatedAgentsData)) {
-        
-        // Find the OnchainKitAgent response in the aggregatedAgentsData array
-        onchainKitAgentData = jsonResponse.aggregatedAgentsData.find(
-          (agent: any) => agent.agentName === 'OnchainKitAgent'
-        );
-      }
-      
-      // If we found an OnchainKit agent response, use it
-      if (onchainKitAgentData) {
-        setOnchainKitResponse(onchainKitAgentData);
-        // Add assistant response to chat
-        setMessages((prev) => [...prev, { role: 'assistant', content: onchainKitAgentData.message }]);
-      } else {
-        // Otherwise, use the regular response
-        const messageContent = (jsonResponse && typeof jsonResponse === 'object' && jsonResponse.message)
-          ? jsonResponse.message 
-          : stringResponse;
-        
-        setMessages((prev) => [...prev, { role: 'assistant', content: messageContent }]);
+      // Create a reader for the response stream
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      // Process the stream
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        // Decode the chunk and add it to the buffer
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process complete events in the buffer
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep the last incomplete line in the buffer
+
+        for (const line of lines) {
+          if (line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          try {
+            const data = JSON.parse(line.slice(5)) as StreamResponse; // Remove 'data: ' prefix
+            processStreamMessage(data);
+          } catch (error) {
+            console.error('Error parsing SSE data:', error);
+          }
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -152,6 +207,10 @@ export default function ChatPage() {
         role: 'assistant', 
         content: 'Sorry, there was an error processing your request.' 
       }]);
+      setAgentStatus({
+        activeAgents: [],
+        completedAgents: []
+      });
     } finally {
       setIsLoading(false);
     }
@@ -245,7 +304,13 @@ export default function ChatPage() {
                     )}
                   </div>
                 ))}
-                {isLoading && (
+                {/* Show streaming message if there is one */}
+                {currentStreamingMessage && (
+                  <div className="chat-message assistant-message">
+                    {currentStreamingMessage}
+                  </div>
+                )}
+                {isLoading && !currentStreamingMessage && (
                   <div className="loading-dots">
                     <div className="dot"></div>
                     <div className="dot"></div>
