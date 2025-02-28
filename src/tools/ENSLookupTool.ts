@@ -12,7 +12,7 @@ const ENSLookupSchema = z.object({
 const getEthClient = () => {
   return createPublicClient({
     chain: mainnet,
-    transport: http("https://eth.llamarpc.com")
+    transport: http(process.env.ENS_RPC ||"https://eth.llamarpc.com")
   });
 };
 
