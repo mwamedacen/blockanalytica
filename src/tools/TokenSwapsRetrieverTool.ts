@@ -34,7 +34,7 @@ export const TokenSwapsRetrieverTool = tool(
         query_parameters: queryParameters
       };
       
-      const queryTimerId = `TokenSwapsRetrieverTool-${token_address}-${side}-${Date.now()}`;
+      const queryTimerId = `TokenSwapsRetrieverTool-${token_address}-${side}-${Date.now()}-${Math.random()}`;
       console.log(`[${new Date().toISOString()}] Starting Dune query for token swaps - token: ${token_address}, side: ${side}, dates: ${start_date} to ${end_date}, limit: ${limit}, queryId: ${DUNE_QUERY_ID}`);
       console.time(queryTimerId);
       
