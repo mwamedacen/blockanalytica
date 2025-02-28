@@ -45,6 +45,7 @@ export default function ChatPage() {
   const [showSwap, setShowSwap] = useState(false);
   const [onchainKitResponse, setOnchainKitResponse] = useState<OnchainKitAgentResponse | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [inputRef, setInputRef] = useState<HTMLInputElement | null>(null);
 
   // Suggestions data
   const suggestions = [
@@ -164,6 +165,7 @@ export default function ChatPage() {
   // Add this new function to handle suggestion clicks
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);
+    inputRef?.focus();
   };
 
   const renderSuggestions = () => (
@@ -275,6 +277,7 @@ export default function ChatPage() {
           <form onSubmit={handleSubmit} className="chat-input-form">
             <div className="input-container">
               <input
+                ref={setInputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
