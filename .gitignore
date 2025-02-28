@@ -3,7 +3,13 @@ node_modules/
 /.pnp
 .pnp.js
 yarn.lock
+pnpm-lock.yaml 
 package-lock.json
+
+# Next.js specific
+/.next/
+/out/
+next-env.d.ts
 
 # Environment variables
 .env
@@ -18,12 +24,11 @@ package-lock.json
 # Production
 /build
 /dist
-/.next/
-/out/
 
 # Misc
 .DS_Store
 *.pem
+.vercel
 
 # Debug
 npm-debug.log*
@@ -59,4 +64,19 @@ yarn-error.log*
 *.tsbuildinfo
 
 # Optional stylelint cache
-.stylelintcache 
+.stylelintcache
+
+# PWA files
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+**/public/worker-*.js.map
+
+# Sitemap
+/public/sitemap*.xml
+/public/robots.txt
+
+# Sentry
+.sentryclirc
