@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { constructCachedAsyncFn, constructInMemoryCachedAsyncFn } from './CachedFunction';
+import { constructCachedAsyncFn, constructInMemoryCachedAsyncFn } from './CachedFunction.ts';
 
 /**
  * Example of an expensive operation that we want to cache

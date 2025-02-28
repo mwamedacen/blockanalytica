@@ -6,3 +6,5 @@ find the wallets of vitalik.eth
 what ens domains have been purchased by vitalik.eth
 
 who are copy traders of CRVidEDtEUTYZisCxBZkpELzhQc9eauMLR3FWg74tReL (frank degods)
+
+I want to swap kaito to usdc on Base

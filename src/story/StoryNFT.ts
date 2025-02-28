@@ -1,9 +1,9 @@
-import { SPGNFTContractAddress, client } from './utils/utils'
-import { uploadJSONToIPFS } from './utils/uploadToIpfs'
+import { SPGNFTContractAddress, client } from './utils/utils.ts'
+import { uploadJSONToIPFS } from './utils/uploadToIpfs.ts'
 import { createHash } from 'crypto'
 import { Address, toHex } from 'viem'
-import { mintNFT } from './utils/mintNFT'
-import { NFTContractAddress, NonCommercialSocialRemixingTermsId, account } from './utils/utils'
+import { mintNFT } from './utils/mintNFT.ts'
+import { NFTContractAddress, NonCommercialSocialRemixingTermsId, account } from './utils/utils.ts'
 
 
 export async function mintAndRegisterIpAndMakeDerivative() {

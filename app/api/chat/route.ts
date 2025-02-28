@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SupervisorAgent } from '../../../src/SupervisorAgent';
+import { SupervisorAgent } from '../../../src/SupervisorAgent.ts';
 import { getMiniChatAPI } from '../../../src/llms/ChatAPI.ts';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 
