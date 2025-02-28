@@ -19,7 +19,7 @@ const SYSTEM_PROMPT = `
   STEPS:
   1. Extract the wallet address from the user query
   2. Retrieve recent swap activity (up to 20 swaps in last 2 months) for the target address using wallet_swaps_retriever
-  3. Pick at most 3 different tokens traded by the target wallet, retrieve other wallets that traded the same tokens shortly after using token_swaps_retriever (here you can check up to 100 swaps)
+  3. Pick at most 3 different swaps involving different tokens (if only swaps with same token are found, deduplicate to take one swap), then retrieve other wallets that traded the same tokens shortly after using token_swaps_retriever (here you can check up to 100 swaps)
   4. Identify wallets that consistently trade the same tokens shortly after the target address
   5. Generate a detailed analysis for the 3 picked tokens:
      - Total number of potential copy trading wallets detected

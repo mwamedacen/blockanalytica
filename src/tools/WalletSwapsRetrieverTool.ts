@@ -46,7 +46,7 @@ export const WalletSwapsRetrieverTool = tool(
       // Get all rows and randomly select 3 swaps
       const allRows = response.result?.rows || [];
       const shuffled = allRows.sort(() => 0.5 - Math.random());
-      return JSON.stringify(shuffled.slice(0, 3));
+      return JSON.stringify(shuffled.slice(0, 10));
     } catch (error: any) {
       console.error("Error retrieving wallet swaps:", error);
       throw new Error(`Failed to retrieve wallet swaps: ${error.message}`);
