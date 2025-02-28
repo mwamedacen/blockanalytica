@@ -2,7 +2,7 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 import { WalletSwapsRetrieverTool } from "../tools/WalletSwapsRetrieverTool";
 import { TokenSwapsRetrieverTool } from "../tools/TokenSwapsRetrieverTool";
-import { getChatAPI } from "../llms/ChatAPI";
+import { getMiniChatAPI } from "../llms/ChatAPI";
 import { z } from "zod";
 
 // Agent description as a constant
@@ -66,7 +66,7 @@ const SYSTEM_PROMPT = `
  */
 export function createCopyTraderDetectorAgent() {
   // Initialize LLM using the shared API
-  const llm = getChatAPI();
+  const llm = getMiniChatAPI();
 
   // Initialize memory
   const agentCheckpointer = new MemorySaver();
