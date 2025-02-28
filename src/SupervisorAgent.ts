@@ -29,7 +29,7 @@ import {
   createHederaAgent,
   HEDERA_AGENT_KIT_DESCRIPTION,
 } from "./agents/HederaAgent";
-import { getChatAPI, getReasoningChatAPI } from "./llms/ChatAPI";
+import { getChatAPI } from "./llms/ChatAPI";
 
 
 // Define the plan step interface

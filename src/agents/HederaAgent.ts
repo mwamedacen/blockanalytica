@@ -1,7 +1,7 @@
 import {
     createHederaTools, HederaAgentKit
 } from "hedera-agent-kit";
-import { getChatAPI } from "../llms/ChatAPI";
+import { getMiniChatAPI } from "../llms/ChatAPI";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 
@@ -71,7 +71,7 @@ const SYSTEM_PROMPT = `
 
 export function createHederaAgent() {
     // Initialize LLM using the shared API
-    const llm = getChatAPI();
+    const llm = getMiniChatAPI();
     
     // Initialize memory
     const agentCheckpointer = new MemorySaver();

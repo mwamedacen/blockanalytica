@@ -1,6 +1,6 @@
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
-import { getChatAPI } from "../llms/ChatAPI";
+import { getMiniChatAPI } from "../llms/ChatAPI";
 import { z } from "zod";
 
 // Agent description as a constant
@@ -44,7 +44,7 @@ const SYSTEM_PROMPT = `
  */
 export function createOnchainKitAgent() {
   // Initialize LLM using the shared API
-  const llm = getChatAPI();
+  const llm = getMiniChatAPI();
   
   // Initialize memory
   const agentCheckpointer = new MemorySaver();

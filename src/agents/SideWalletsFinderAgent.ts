@@ -2,7 +2,7 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 import { BidrectionalTransfersTool } from "../tools/BidrectionalTransfersTool";
 import { FundingSourceTool } from "../tools/FundingSourceTool";
-import { getChatAPI } from "../llms/ChatAPI";
+import { getMiniChatAPI } from "../llms/ChatAPI";
 import { z } from "zod";
 
 // Agent description as a constant
@@ -38,7 +38,7 @@ const SYSTEM_PROMPT = `
  * @returns The configured agent instance
  */
 export function createSideWalletsFinderAgent() {
-  const llm = getChatAPI();
+  const llm = getMiniChatAPI();
   const agentCheckpointer = new MemorySaver();
 
   return createReactAgent({
