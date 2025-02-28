@@ -25,7 +25,7 @@ const SYSTEM_PROMPT = `
 
   EXAMPLE QUERIES:
   - "what is the wallet address for vitalik.eth" -> extracted ENS domain: "vitalik.eth"
-  - "resolve nick.eth" -> extracted ENS domain: "rick.eth"
+  - "resolve nick.eth" -> extracted ENS domain: "nick.eth"
   - "find what ens domains have been owned by vitalik.eth" -> extracted ENS domain: "vitalik.eth"
   
   OUTPUT FORMAT:
