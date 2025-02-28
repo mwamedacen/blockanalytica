@@ -1,5 +1,5 @@
 import { zeroAddress } from 'viem'
-import { client } from './utils.ts'
+import { client } from './utils'
 
 const main = async function () {
     // Create a new SPG NFT collection

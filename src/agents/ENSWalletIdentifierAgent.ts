@@ -1,7 +1,7 @@
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
-import { ENSLookupTool } from "../tools/ENSLookupTool.ts";
-import { getChatAPI } from "../llms/ChatAPI.ts";
+import { ENSLookupTool } from "../tools/ENSLookupTool";
+import { getChatAPI } from "../llms/ChatAPI";
 
 // Agent description as a constant
 export const ENS_WALLET_IDENTIFIER_DESCRIPTION = 

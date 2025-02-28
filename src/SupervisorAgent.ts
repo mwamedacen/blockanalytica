@@ -3,33 +3,33 @@ import { createSupervisor } from "@langchain/langgraph-supervisor";
 import { 
   createCopyTraderDetectorAgent, 
   COPY_TRADER_DETECTOR_DESCRIPTION,
-} from "./agents/CopyTraderDetectorAgent.ts";
+} from "./agents/CopyTraderDetectorAgent";
 import { 
   createENSWalletIdentifierAgent, 
   ENS_WALLET_IDENTIFIER_DESCRIPTION,
-} from "./agents/ENSWalletIdentifierAgent.ts";
+} from "./agents/ENSWalletIdentifierAgent";
 import { 
   createSideWalletsFinderAgent, 
   SIDE_WALLETS_FINDER_DESCRIPTION,
-} from "./agents/SideWalletsFinderAgent.ts";
+} from "./agents/SideWalletsFinderAgent";
 import {
   createHistoricalEnsDomainsFinderAgent,
   HISTORICAL_ENS_DOMAINS_FINDER_DESCRIPTION,
-} from "./agents/HistoricalEnsDomainsFinderAgent.ts";
+} from "./agents/HistoricalEnsDomainsFinderAgent";
 import {
   createEarlyTokenBuyersFinderAgent,
   EARLY_TOKEN_BUYERS_FINDER_DESCRIPTION,
-} from "./agents/EarlyTokenBuyersFinderAgent.ts";
-import { createTokenResolverAgent, TOKEN_RESOLVER_DESCRIPTION } from "./agents/TokenResolverAgent.ts";
+} from "./agents/EarlyTokenBuyersFinderAgent";
+import { createTokenResolverAgent, TOKEN_RESOLVER_DESCRIPTION } from "./agents/TokenResolverAgent";
 import {
   createOnchainKitAgent,
   ONCHAIN_KIT_AGENT_DESCRIPTION,
-} from "./agents/OnchainKitAgent.ts";
+} from "./agents/OnchainKitAgent";
 import {
   createHederaAgent,
   HEDERA_AGENT_KIT_DESCRIPTION,
-} from "./agents/HederaAgent.ts";
-import { getChatAPI, getReasoningChatAPI } from "./llms/ChatAPI.ts";
+} from "./agents/HederaAgent";
+import { getChatAPI, getReasoningChatAPI } from "./llms/ChatAPI";
 
 
 // Define the plan step interface

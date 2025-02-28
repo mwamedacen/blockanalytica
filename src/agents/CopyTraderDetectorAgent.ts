@@ -1,8 +1,9 @@
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
-import { WalletSwapsRetrieverTool } from "../tools/WalletSwapsRetrieverTool.ts";
-import { TokenSwapsRetrieverTool } from "../tools/TokenSwapsRetrieverTool.ts";
-import { getChatAPI } from "../llms/ChatAPI.ts";
+import { WalletSwapsRetrieverTool } from "../tools/WalletSwapsRetrieverTool";
+import { TokenSwapsRetrieverTool } from "../tools/TokenSwapsRetrieverTool";
+import { getChatAPI } from "../llms/ChatAPI";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
 // Agent description as a constant
 export const COPY_TRADER_DETECTOR_DESCRIPTION = 

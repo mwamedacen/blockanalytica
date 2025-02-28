@@ -1,9 +1,9 @@
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
-import { BidrectionalTransfersTool } from "../tools/BidrectionalTransfersTool.ts";
-import { FundingSourceTool } from "../tools/FundingSourceTool.ts";
-import { getChatAPI } from "../llms/ChatAPI.ts";
-import { mintStoryIP, mintAndRegisterIpAndMakeDerivative } from "../story/StoryNFT.ts";
+import { BidrectionalTransfersTool } from "../tools/BidrectionalTransfersTool";
+import { FundingSourceTool } from "../tools/FundingSourceTool";
+import { getChatAPI } from "../llms/ChatAPI";
+import { mintStoryIP, mintAndRegisterIpAndMakeDerivative } from "../story/StoryNFT";
 
 // Agent description as a constant
 export const SIDE_WALLETS_FINDER_DESCRIPTION = 

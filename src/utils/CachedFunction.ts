@@ -1,4 +1,4 @@
-import { getRedisValue, setRedisValue, hasRedisKey } from './RedisClient.ts';
+import { getRedisValue, setRedisValue, hasRedisKey } from './RedisClient';
 
 /**
  * Creates a cached version of an async function using Redis for storage

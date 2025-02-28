@@ -1,7 +1,7 @@
 import { http, createWalletClient, createPublicClient, Address, WalletClient } from 'viem'
-import { NFTContractAddress, RPCProviderUrl, account } from './utils.ts'
+import { NFTContractAddress, RPCProviderUrl, account } from './utils'
 import { aeneid } from '@story-protocol/core-sdk'
-import { defaultNftContractAbi } from './defaultNftContractAbi.ts'
+import { defaultNftContractAbi } from './defaultNftContractAbi'
 
 const baseConfig = {
     chain: aeneid,

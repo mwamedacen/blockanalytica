@@ -1,7 +1,7 @@
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
-import { HistoricalEnsDomainsFetcherTool } from "../tools/HistoricalEnsDomainsFetcherTool.ts";
-import { getChatAPI } from "../llms/ChatAPI.ts";
+import { HistoricalEnsDomainsFetcherTool } from "../tools/HistoricalEnsDomainsFetcherTool";
+import { getChatAPI } from "../llms/ChatAPI";
 
 // Agent description as a constant
 export const HISTORICAL_ENS_DOMAINS_FINDER_DESCRIPTION = 

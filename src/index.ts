@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { SupervisorAgent } from './SupervisorAgent.ts';
+import { SupervisorAgent } from './SupervisorAgent';
 import { CopyTraderResult } from './types';
 
 async function main() {

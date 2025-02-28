@@ -1,6 +1,6 @@
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
-import { getChatAPI } from "../llms/ChatAPI.ts";
+import { getChatAPI } from "../llms/ChatAPI";
 
 // Agent description as a constant
 export const ONCHAIN_KIT_AGENT_DESCRIPTION = 

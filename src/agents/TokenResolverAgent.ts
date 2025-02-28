@@ -1,7 +1,7 @@
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
-import { DexScreenerTokenResolverTool } from "../tools/DexScreenerTokenResolverTool.ts";
-import { getChatAPI } from "../llms/ChatAPI.ts";
+import { DexScreenerTokenResolverTool } from "../tools/DexScreenerTokenResolverTool";
+import { getChatAPI } from "../llms/ChatAPI";
 
 // Agent description as a constant
 export const TOKEN_RESOLVER_DESCRIPTION = 
