@@ -1,6 +1,7 @@
 'use client';
 
 import '@coinbase/onchainkit/styles.css';
+import '../styles/chat.css';
 import { useState, useRef, useEffect } from 'react';
 import AgentStatus from '../components/AgentStatus';
 import { Providers } from '../components/provider';
@@ -36,10 +37,38 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [agentStatus, setAgentStatus] = useState<AgentStatusData | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [agentStatus, setAgentStatus] = useState<AgentStatusData>({
+    activeAgents: [],
+    completedAgents: []
+  });
   const [showSwap, setShowSwap] = useState(false);
   const [onchainKitResponse, setOnchainKitResponse] = useState<OnchainKitAgentResponse | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Suggestions data
+  const suggestions = [
+    {
+      title: "Find Early Token Buyers",
+      query: "Find wallets that were among first 200 to buy $AIXBT and $VIRTUAL"
+    },
+    {
+      title: "Check ENS History",
+      query: "What ENS domains have been purchased by vitalik.eth?"
+    },
+    {
+      title: "Find Related Wallets",
+      query: "Find side wallets of vitalik.eth"
+    },
+    {
+      title: "Detect Copy Trading",
+      query: "Who is copy trading frank degods?"
+    },
+    {
+      title: "Swap Tokens",
+      query: "I want to swap kaito to usdc on Base"
+    }
+  ];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,13 +81,17 @@ export default function ChatPage() {
     
     const userMessage = input;
     setInput('');
+    setShowSuggestions(false);
     
     // Add user message to chat
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
     
     // Reset agent status for new query
-    setAgentStatus(null);
+    setAgentStatus({
+      activeAgents: [],
+      completedAgents: []
+    });
     setOnchainKitResponse(null);
     
     try {
@@ -128,6 +161,29 @@ export default function ChatPage() {
     // You can add additional logic here if needed
   };
 
+  // Add this new function to handle suggestion clicks
+  const handleSuggestionClick = (suggestion: string) => {
+    setInput(suggestion);
+  };
+
+  const renderSuggestions = () => (
+    <div className="agent-capabilities-chat">
+      <h3>Example Queries</h3>
+      <ul>
+        {suggestions.map((suggestion, index) => (
+          <li key={index}>
+            <button 
+              className="suggestion-button" 
+              onClick={() => handleSuggestionClick(suggestion.query)}
+            >
+              <strong>{suggestion.title}</strong> - "{suggestion.query}"
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
   return (
     <OnchainKitProvider
       apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY || 'ntBs8y178W5eiLMELXUkO-2A3QDMat-7'} 
@@ -144,7 +200,10 @@ export default function ChatPage() {
     
     <div className="chat-container">
       <div className="chat-header">
-        <h1>BlockAnalytica Chat</h1> <h1><WalletDefault /></h1>
+        <h1>BlockAnalytica Chat</h1> 
+        <div className="header-right">
+          <WalletDefault />
+        </div>
       </div>
       
       <div className="chat-columns">
@@ -156,18 +215,7 @@ export default function ChatPage() {
                 <h2>Welcome to BlockAnalytica Chat</h2>
                 <p>I'm your blockchain forensics assistant, powered by specialized AI agents.</p>
                 
-                <div className="agent-capabilities-chat">
-                  <h3>How can I help you today?</h3>
-                  <ul>
-                    <li><strong>Analyze wallet addresses</strong> - "Analyze this wallet: 0x123... and find related wallets"</li>
-                    <li><strong>Investigate tokens</strong> - "Tell me about the security of token 0xabc..."</li>
-                    <li><strong>Detect trading patterns</strong> - "Is anyone copy trading this wallet: 0x456..."</li>
-                    <li><strong>Resolve identities</strong> - "Who owns the ENS domain vitalik.eth?"</li>
-                    <li><strong>Analyze smart contracts</strong> - "Check if this contract is secure: 0x789..."</li>
-                    <li><strong>Swap tokens</strong> - "I want to swap some tokens"</li>
-                    <li><strong>Connect wallet</strong> - "I want to connect my wallet"</li>
-                  </ul>
-                </div>
+                {showSuggestions && renderSuggestions()}
                 
                 <p className="start-prompt">Type your question below to begin...</p>
               </div>
@@ -203,9 +251,46 @@ export default function ChatPage() {
                   </div>
                 )}
                 <div ref={messagesEndRef} />
+                
+                {/* Show suggestions panel after messages if enabled */}
+                {showSuggestions && messages.length > 0 && (
+                  <div className="suggestions-panel">
+                    {renderSuggestions()}
+                  </div>
+                )}
+
+                {/* Floating suggestions toggle button */}
+                <button 
+                  className="floating-suggestions-toggle"
+                  onClick={() => setShowSuggestions(!showSuggestions)}
+                  title={showSuggestions ? 'Hide suggestions' : 'Show suggestions'}
+                >
+                  {showSuggestions ? '❌' : '💡'}
+                </button>
               </>
             )}
           </div>
+          
+          {/* Chat Input Form */}
+          <form onSubmit={handleSubmit} className="chat-input-form">
+            <div className="input-container">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask a question about blockchain data..."
+                className="input"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                className="btn btn-primary"
+              >
+                Send
+              </button>
+            </div>
+          </form>
         </div>
         
         {/* Right Column: Agent Status and OnchainKit Components */}
@@ -242,27 +327,6 @@ export default function ChatPage() {
           )}
         </div>
       </div>
-      
-      {/* Input Form */}
-      <form onSubmit={handleSubmit} className="chat-input-form">
-        <div className="input-container">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask a question about blockchain data..."
-            className="input"
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="btn btn-primary"
-          >
-            Send
-          </button>
-        </div>
-      </form>
     </div>
     </OnchainKitProvider>
   );

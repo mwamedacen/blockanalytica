@@ -1,0 +1,104 @@
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toggle-suggestions-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-suggestions-button:hover {
+  background-color: #2563eb;
+}
+
+.suggestions-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.suggestion-button {
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.suggestion-button:hover {
+  color: #3b82f6;
+  transform: translateX(5px);
+}
+
+.suggestion-button strong {
+  color: #3b82f6;
+}
+
+.agent-capabilities-chat ul {
+  list-style: none;
+  padding: 0;
+}
+
+.agent-capabilities-chat li {
+  margin: 12px 0;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.agent-capabilities-chat li:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.floating-suggestions-toggle {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+  z-index: 10;
+}
+
+.floating-suggestions-toggle:hover {
+  transform: scale(1.1);
+  background-color: #1d4ed8;
+}
+
+.chat-messages {
+  position: relative;
+  min-height: 200px;
+  padding: 1rem;
+} 
