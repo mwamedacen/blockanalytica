@@ -2,10 +2,25 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 import { HistoricalEnsDomainsFetcherTool } from "../tools/HistoricalEnsDomainsFetcherTool";
 import { getChatAPI } from "../llms/ChatAPI";
+import { z } from "zod";
 
 // Agent description as a constant
 export const HISTORICAL_ENS_DOMAINS_FINDER_DESCRIPTION = 
   "Identifies all historical ENS domains that have been associated with a given Ethereum wallet address.";
+
+// Define the response schema
+const responseSchema = z.object({
+  agentName: z.string(),
+  message: z.string().describe('A human-readable summary of the historical ENS domains found'),
+  data: z.object({
+    wallet_address: z.string().describe('The wallet address being analyzed'),
+    historical_ens: z.array(z.object({
+      ens_domain: z.string().describe('The ENS domain name'),
+      still_owned: z.boolean().describe('Whether the wallet still owns this domain'),
+      registration_date: z.string().describe('ISO timestamp of when the domain was first registered'),
+    })),
+  }),
+});
 
 const SYSTEM_PROMPT = `
   You are a blockchain forensics expert specializing in ENS domain history analysis.
@@ -15,28 +30,10 @@ const SYSTEM_PROMPT = `
   STEPS:
   1. Extract the wallet address from the user query
   2. Use the historical_ens_domains_fetcher tool to retrieve all historical ENS domains
-  3. Return the results in the required JSON format
+  3. Return the results
   
-  OUTPUT FORMAT:
-  You must return your response as a JSON object with the following structure:
-  {
-    "agentName": "HistoricalEnsDomainFinderAgent",
-    "message": string, // A human-readable summary of the analysis
-    "data": {
-      "wallet_address": string,
-      "historical_ens": [
-        {
-          "ens_domain": string,
-          "still_owned": boolean,
-          "registration_date": string
-        }
-      ]
-    }
-  }
-  Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
-  
-  If no historical ENS domains are found, return the JSON with an empty historical_ens array and appropriate message.
-  `;
+  If no historical ENS domains are found, return an empty result with appropriate message.
+`;
 
 /**
  * Creates a Historical ENS Domains Finder Agent that identifies all ENS domains associated with a wallet
@@ -56,5 +53,6 @@ export function createHistoricalEnsDomainsFinderAgent() {
     prompt: SYSTEM_PROMPT,
     tools: [HistoricalEnsDomainsFetcherTool],
     checkpointSaver: agentCheckpointer,
+    responseFormat: responseSchema,
   });
 } 

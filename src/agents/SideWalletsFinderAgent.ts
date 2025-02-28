@@ -3,11 +3,21 @@ import { MemorySaver } from "@langchain/langgraph";
 import { BidrectionalTransfersTool } from "../tools/BidrectionalTransfersTool";
 import { FundingSourceTool } from "../tools/FundingSourceTool";
 import { getChatAPI } from "../llms/ChatAPI";
-import { mintStoryIP, mintAndRegisterIpAndMakeDerivative } from "../story/StoryNFT";
+import { z } from "zod";
 
 // Agent description as a constant
 export const SIDE_WALLETS_FINDER_DESCRIPTION = 
   "Identifies potential side wallets associated with a target wallet by analyzing bidirectional transfer patterns. Wallet addresses could be Ethereum or Solana.";
+
+// Define the response schema
+const responseSchema = z.object({
+  agentName: z.string(),
+  message: z.string().describe('A human-readable summary of the analysis'),
+  data: z.array(z.object({
+    wallet_address: z.string().describe('The identified side wallet address'),
+    intel_description: z.string().describe('Indicates if wallet was found via bidirectional transfers and/or funding source analysis'),
+  })),
+});
 
 const SYSTEM_PROMPT = `
   You are a blockchain forensics expert specializing in identifying side wallets and related addresses.
@@ -20,47 +30,23 @@ const SYSTEM_PROMPT = `
      a. Use BidrectionalTransfersTool to find wallets with two-way transfer patterns
      b. Use FundingSourceTool to trace funding address
   3. Combine and deduplicate results from both analysis paths
-  4. Return the analysis results in the required JSON format
-  
-  OUTPUT FORMAT:
-  You must return your response as a JSON object with the following structure:
-  {
-    "agentName": "SideWalletsFinderAgent",
-    "message": string, // A human-readable summary of the analysis
-    "data": [
-      {
-        "wallet_address": string,
-        "intel_description": string, // Indicates if wallet was found via bidirectional transfers and/or funding source analysis
-      }
-    ]
-  }
-  Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
-  
-  If no related wallets are found, return the JSON with an empty data array and appropriate message.
-  `;
+  4. Return the analysis results
+`;
 
 /**
  * Creates a Side Wallets Finder Agent that identifies potential side wallets
  * @returns The configured agent instance
  */
 export function createSideWalletsFinderAgent() {
-
-  if (process.env.IP_ENABLED === 'true') {
-    if (!mintAndRegisterIpAndMakeDerivative()) return null;
-  }
-
-  // Initialize LLM using the shared API
   const llm = getChatAPI();
-  
-  // Initialize memory
   const agentCheckpointer = new MemorySaver();
 
-  // Create the agent with the bidirectional transfers tool
   return createReactAgent({
     name: 'SideWalletsFinderAgent',
     llm,
     prompt: SYSTEM_PROMPT,
     tools: [BidrectionalTransfersTool, FundingSourceTool],
     checkpointSaver: agentCheckpointer,
+    responseFormat: responseSchema,
   });
 }

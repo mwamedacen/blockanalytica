@@ -3,11 +3,29 @@ import { MemorySaver } from "@langchain/langgraph";
 import { WalletSwapsRetrieverTool } from "../tools/WalletSwapsRetrieverTool";
 import { TokenSwapsRetrieverTool } from "../tools/TokenSwapsRetrieverTool";
 import { getChatAPI } from "../llms/ChatAPI";
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { z } from "zod";
 
 // Agent description as a constant
 export const COPY_TRADER_DETECTOR_DESCRIPTION = 
   "Analyzes potential copy trading behavior by identifying wallets that consistently trade the same tokens shortly after a target address (minimum 2 correlated swaps).";
+
+// Define the response schema
+const responseSchema = z.object({
+  agentName: z.string(),
+  message: z.string().describe('A human-readable summary of the copy trading analysis'),
+  data: z.array(z.object({
+    token_address: z.string().describe('The contract address of the analyzed token'),
+    target_trader: z.object({
+      volume_traded: z.number().describe('Total volume traded by the target wallet in USD'),
+      tx_hash: z.string().describe('Transaction hash of a representative trade'),
+    }),
+    copy_traders: z.array(z.object({
+      tx_hash: z.string().describe('Transaction hash of the copy trade'),
+      volume_traded: z.number().describe('Volume traded by this copy trader in USD'),
+      wallet_address: z.string().describe('Address of the copy trading wallet'),
+    })),
+  })),
+});
 
 const SYSTEM_PROMPT = `
   You are a blockchain forensics expert specializing in detecting copy trading behavior.
@@ -40,32 +58,8 @@ const SYSTEM_PROMPT = `
          * The total combined volume traded by ALL copy traders
          * The ratio between these volumes (copy traders volume / target wallet volume)
      - Include 3 example copy trader addresses (these are just samples, not the complete list)
-
-  3. Output Format:
-     You must return your analysis as a JSON object with the following structure:
-     {
-       "agentName": "CopyTraderDetectorAgent",
-       "message": string, // A human-readable summary of the analysis
-       "data": [
-         {
-           "token_address": string,
-           "target_trader": {
-             "volume_traded": number,
-             "tx_hash": string
-           },
-           "copy_traders": [
-             {
-               "tx_hash": string,
-               "volume_traded": number,
-               "wallet_address": string
-             }
-           ]
-         }
-       ]
-     }
-  Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
   </IMPORTANT_CONSTRAINTS>
-  `;
+`;
 /**
  * Creates a Copy Trader Detector Agent that analyzes potential copy trading behavior
  * @returns The configured agent instance
@@ -86,6 +80,7 @@ export function createCopyTraderDetectorAgent() {
       WalletSwapsRetrieverTool,
       TokenSwapsRetrieverTool
     ],
-    checkpointSaver: agentCheckpointer
+    checkpointSaver: agentCheckpointer,
+    responseFormat: responseSchema,
   });
 }

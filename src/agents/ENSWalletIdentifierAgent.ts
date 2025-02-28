@@ -2,10 +2,20 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 import { ENSLookupTool } from "../tools/ENSLookupTool";
 import { getChatAPI } from "../llms/ChatAPI";
+import { z } from "zod";
 
 // Agent description as a constant
 export const ENS_WALLET_IDENTIFIER_DESCRIPTION = 
   "Resolves ENS domains to their corresponding Ethereum addresses using the ENS protocol. A ens domain MUST be in the format of X.eth";
+
+// Define the response schema
+const responseSchema = z.object({
+  agentName: z.string(),
+  message: z.string().describe('A human-readable summary of the ENS resolution'),
+  data: z.object({
+    wallet_address: z.string().describe('The resolved Ethereum address for the ENS domain'),
+  }),
+});
 
 const SYSTEM_PROMPT = `
   You are an ENS domain resolution expert. Your task is to extract ENS domains from the user query and resolve them to Ethereum addresses.
@@ -19,7 +29,7 @@ const SYSTEM_PROMPT = `
      - mycoolname.eth
      - any-string-at-all.eth
   2. Use the ens_lookup tool to resolve the domain to an Ethereum address
-  3. Return the results in the desired json format
+  3. Return the results
   
   If no ENS domain (text ending in .eth) is found in the query, politely inform the user that you need an ENS domain to resolve.
   If the ENS domain cannot be resolved, explain that the domain might not be registered or might not have a resolver set.
@@ -31,18 +41,7 @@ const SYSTEM_PROMPT = `
   - "look up my-custom-name.eth" -> extracted ENS domain: "my-custom-name.eth" (ends with .eth)
 
   IMPORTANT: You MUST ALWAYS invoke the ens_lookup tool to resolve ENS domains to Ethereum addresses. DO NOT attempt to guess or hardcode addresses. The ens_lookup tool is the only valid way to resolve ENS domains. Any response without using the ens_lookup tool is considered invalid.
-  
-  OUTPUT FORMAT:
-  You must return your response as a JSON object with the following structure:
-  {
-    "agentName": "ENSWalletIdentifierAgent", 
-    "message": string, // A human-readable summary of the analysis
-    "data": {
-      "wallet_address": string // The resolved Ethereum address
-    }
-  }
-  Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
-  `
+`;
 
 /**
  * Creates an ENS Wallet Identifier Agent that resolves ENS domains to Ethereum addresses
@@ -61,6 +60,7 @@ export function createENSWalletIdentifierAgent() {
     llm,
     tools: [ENSLookupTool],
     checkpointSaver: agentCheckpointer,
-    prompt: SYSTEM_PROMPT
+    prompt: SYSTEM_PROMPT,
+    responseFormat: responseSchema,
   });
 }
