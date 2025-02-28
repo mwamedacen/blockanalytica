@@ -73,7 +73,10 @@ export default function ChatPage() {
         }),
       });
       
-      const stringResponse = (await response.json()).response;
+      console.log("response", response);
+      const responseJson = await response.json();
+      console.log("response.json", responseJson);
+      const stringResponse = (await responseJson).response;
 
       let jsonResponse = null;
 
@@ -103,7 +106,7 @@ export default function ChatPage() {
         setMessages((prev) => [...prev, { role: 'assistant', content: onchainKitAgentData.message }]);
       } else {
         // Otherwise, use the regular response
-        const messageContent = typeof jsonResponse === 'object' && jsonResponse.message 
+        const messageContent = (jsonResponse && typeof jsonResponse === 'object' && jsonResponse.message)
           ? jsonResponse.message 
           : stringResponse;
         

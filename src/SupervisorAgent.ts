@@ -25,6 +25,10 @@ import {
   createOnchainKitAgent,
   ONCHAIN_KIT_AGENT_DESCRIPTION,
 } from "./agents/OnchainKitAgent.ts";
+import {
+  createHederaAgent,
+  HEDERA_AGENT_KIT_DESCRIPTION,
+} from "./agents/HederaAgent.ts";
 import { getChatAPI, getReasoningChatAPI } from "./llms/ChatAPI.ts";
 
 
@@ -93,6 +97,11 @@ export class SupervisorAgent {
         name: "OnchainKitAgent",
         description: ONCHAIN_KIT_AGENT_DESCRIPTION,
         instance: createOnchainKitAgent(),
+      },
+      {
+        name: "HederaAgent",
+        description: HEDERA_AGENT_KIT_DESCRIPTION,
+        instance: createHederaAgent(),
       }
     ];
   }
@@ -198,6 +207,8 @@ export class SupervisorAgent {
       - Format the final response in a clear, structured way
 
       When agents execute in series you MUST inject the results of the previous agent as context for the next agent.
+
+      OUTPUT FORMAT:
       You MUST return your response as a JSON object with the following structure:
       {
         "message": string, // A human-readable summary synthesizing all agent findings
