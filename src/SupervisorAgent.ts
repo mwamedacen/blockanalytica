@@ -58,7 +58,7 @@ export class SupervisorAgent {
     }
 
     // Initialize planning and execution LLMs using the shared API
-    this.planningLLM = getReasoningChatAPI();
+    this.planningLLM = getChatAPI();
     this.executionLLM = getChatAPI();
 
     // Initialize all available agents
