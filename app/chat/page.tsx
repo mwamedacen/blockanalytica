@@ -116,6 +116,8 @@ export default function ChatPage() {
 
       if (stringResponse.includes("```json")) {
         jsonResponse = JSON.parse(stringResponse.replaceAll("```json", "").replaceAll("```", ""));
+      } else if (responseJson && responseJson.response){
+        jsonResponse = JSON.parse(responseJson.response);
       }
       
       // Check for OnchainKit agent response
