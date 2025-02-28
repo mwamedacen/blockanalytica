@@ -24,14 +24,19 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": [
     "src/**/*.ts",
     "src/langchain-supervisor.mjs",
     ".next/types/**/*.ts",
     "app/**/*.ts",
-    "app/**/*.tsx"
+    "app/**/*.tsx",
+    "*.d.ts"
   ],
   "exclude": [
     "node_modules",
