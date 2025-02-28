@@ -13,7 +13,7 @@ const SYSTEM_PROMPT = `
   TASK: Given a token ticker and optionally a specific chain, resolve it to the correct token contract address. This agent MUST be used first whenever working with token tickers/symbols before passing them to other agents that require contract addresses.
   
   STEPS:
-  1. Extract the token ticker and optional chain from the user query
+  1. Extract the token ticker (without $ / cashtag symbols) and optional chain from the user query
   2. Use dexscreener_token_resolver tool to find the token with highest liquidity matching the query
   3. Return the analysis results in the required JSON format
   

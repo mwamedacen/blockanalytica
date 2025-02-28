@@ -25,7 +25,7 @@ interface DexScreenerPair {
 
 // Define the schema for the tool's input
 const DexScreenerTokenResolverSchema = z.object({
-  ticker: z.string().describe("The token ticker/symbol to search for"),
+  ticker: z.string().describe("The token ticker/symbol to search for. It should not have $ / cashtag symbols."),
   chain: z.string().optional().default("base").describe("The chain to search on (default: base)")
 });
 
@@ -41,6 +41,11 @@ const CHAIN_IDS: { [key: string]: string } = {
 // Create the tool using the functional approach
 export const DexScreenerTokenResolverTool = tool(
   async ({ ticker, chain }: z.infer<typeof DexScreenerTokenResolverSchema>) => {
+    // Check for cashtag at start of ticker
+    if (ticker.startsWith('$')) {
+      throw new Error('Ticker should not start with $ symbol. Please remove the cashtag.');
+    }
+    
     console.log(`[DexScreenerTokenResolver] Starting resolution for ticker: ${ticker} on chain: ${chain}`);
     try {
       // Safely get chain ID
@@ -137,5 +142,6 @@ export const DexScreenerTokenResolverTool = tool(
     name: "dexscreener_token_resolver",
     description: "Resolves a token ticker to its contract address on a specific chain using DexScreener, picking the pool with highest liquidity",
     schema: DexScreenerTokenResolverSchema,
+
   }
 ); 
