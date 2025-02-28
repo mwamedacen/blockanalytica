@@ -46,7 +46,7 @@ export const ENSLookupTool = tool(
   },
   {
     name: "ens_lookup",
-    description: "Resolves an ENS domain to its corresponding Ethereum address",
+    description: "Resolves an ENS domain to its corresponding Ethereum address. The ENS domain must be in the format of X.eth",
     schema: ENSLookupSchema,
   }
 ); 
