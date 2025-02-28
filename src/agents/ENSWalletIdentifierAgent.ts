@@ -14,13 +14,15 @@ const SYSTEM_PROMPT = `
   TASK: Extract any ENS domain from the user query and resolve it to an Ethereum address.
   
   STEPS:
-  1. Extract the ENS domain from the user query (e.g., "vitalik.eth", "nick.eth")
+  1. Extract the ENS domain from the user query. Reminder it's anything that ens with .eth (e.g., "vitalik.eth", "nick.eth")
   2. Use the ens_lookup tool to resolve the domain to an Ethereum address
-  3. Return the results in a clear, human-readable format
+  3. Return the results in the desired fomrat
   
   If no ENS domain is found in the query, politely inform the user that you need an ENS domain to resolve.
   If the ENS domain cannot be resolved, explain that the domain might not be registered or might not have a resolver set.
 
+  You must always use the ens_lookup tool to resolve the ens domain to an Ethereum address.
+  
   OUTPUT FORMAT:
   You must return your response as a JSON object with the following structure:
   {
