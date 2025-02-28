@@ -73,37 +73,27 @@ export default function ChatPage() {
         }),
       });
       
-      const data = await response.json();
-      
-      // Update agent status with data from response
-      if (data.agentStatus) {
-        setAgentStatus(data.agentStatus);
+      const stringResponse = (await response.json()).response;
+
+      let jsonResponse = null;
+
+      if (stringResponse.includes("```json")) {
+        jsonResponse = JSON.parse(stringResponse.replaceAll("```json", "").replaceAll("```", ""));
       }
       
-      console.log('data.response', JSON.parse(data.response));
       // Check for OnchainKit agent response
       let onchainKitAgentData = null;
-
-      const parsedData = JSON.parse(data.response);
       
       // First check if the response has aggregatedAgentsData
-      if (parsedData.aggregatedAgentsData && 
-          Array.isArray(parsedData.aggregatedAgentsData)) {
-
-          console.log('parsedData.aggregatedAgentsData', parsedData.aggregatedAgentsData);
+      if (jsonResponse && 
+          typeof jsonResponse === 'object' && 
+          jsonResponse.aggregatedAgentsData && 
+          Array.isArray(jsonResponse.aggregatedAgentsData)) {
         
         // Find the OnchainKitAgent response in the aggregatedAgentsData array
-        onchainKitAgentData = parsedData.aggregatedAgentsData.find(
+        onchainKitAgentData = jsonResponse.aggregatedAgentsData.find(
           (agent: any) => agent.agentName === 'OnchainKitAgent'
         );
-      }
-      
-      // If not found in aggregatedAgentsData, check if the response itself is from OnchainKitAgent
-      if (!onchainKitAgentData && 
-          data.response && 
-          typeof data.response === 'object' && 
-          data.response.agentName === 'OnchainKitAgent') {
-        onchainKitAgentData = data.response;
       }
       
       // If we found an OnchainKit agent response, use it
@@ -113,9 +103,9 @@ export default function ChatPage() {
         setMessages((prev) => [...prev, { role: 'assistant', content: onchainKitAgentData.message }]);
       } else {
         // Otherwise, use the regular response
-        const messageContent = typeof data.response === 'object' && data.response.message 
-          ? data.response.message 
-          : data.response;
+        const messageContent = typeof jsonResponse === 'object' && jsonResponse.message 
+          ? jsonResponse.message 
+          : stringResponse;
         
         setMessages((prev) => [...prev, { role: 'assistant', content: messageContent }]);
       }

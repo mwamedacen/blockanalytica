@@ -31,13 +31,6 @@ export default function Home() {
         >
           Standard Chat
         </Link>
-        
-        <Link 
-          href="/chat/streaming" 
-          className="btn btn-secondary"
-        >
-          Real-time Agent Status
-        </Link>
       </div>
     </main>
   );
