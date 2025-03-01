@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SupervisorAgent } from '../../../src/SupervisorAgent';
 import { getMiniChatAPI } from '../../../src/llms/ChatAPI';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { PrivyClient } from '@privy-io/server-auth';
 
 // Initialize the supervisor agent
 let supervisorAgent: SupervisorAgent | null = null;
+
+const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
+const PRIVY_APP_SECRET = process.env.PRIVY_APP_SECRET;
+const privyClient = new PrivyClient(PRIVY_APP_ID!, PRIVY_APP_SECRET!);
 
 // Keep track of agents for UI display
 interface AgentStatus {
@@ -20,13 +25,25 @@ export async function POST(request: NextRequest) {
       // await supervisorAgent.initialize();
     }
     
-    const { message } = await request.json();
+    const { message, network } = await request.json();
     
     if (!message) {
       return NextResponse.json(
         { error: 'Message is required' },
         { status: 400 }
       );
+    }
+
+    const headerAuthToken = request.headers.get("authorization")?.replace(/^Bearer /, "");
+    const cookieAuthToken = request.cookies.get("privy-token")?.value;
+  
+    let claims = null;
+    try {
+      
+      const authToken = cookieAuthToken || headerAuthToken;
+      claims = authToken? await privyClient.verifyAuthToken(authToken): null;
+    } catch (e: any) {
+      console.log(e);
     }
     
     // Track active agents
@@ -37,11 +54,11 @@ export async function POST(request: NextRequest) {
     const isOnchainKitRequest = /wallet|swap|transaction|connect|token|frame/i.test(message);
     
     // Process the query through supervisor agent
-    console.log(`[${new Date().toISOString()}] Processing query through supervisor agent:`, message);
+    console.log(`[${new Date().toISOString()}] Processing query through supervisor agent: ${message} on network: ${network}`);
     const queryTimerId = `supervisor-query-${Date.now()}`;
     console.time(queryTimerId);
     
-    const response = await supervisorAgent.processQuery(message);
+    const response = claims ? await supervisorAgent.processQueryWithUser(message, claims, network): await supervisorAgent.processQuery(message, network);
     
     console.timeEnd(queryTimerId);
     console.log(`[${new Date().toISOString()}] Completed processing query, response:`, response);

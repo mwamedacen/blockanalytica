@@ -6,8 +6,8 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { MemorySaver } from "@langchain/langgraph";
 
 
-const accountId = "0.0.5635070-zaecf";
-const privateKey = "cef27f2ee15dab8797f269014ea4984b6d8ee456d77def33aca3868dc501cac4";
+const accountId = process.env.HBAR_ACCOUNT_ID || "";
+const privateKey = process.env.HBAR_PRIVATE_KEY || "";
 const network = "testnet";
 const kit = new HederaAgentKit(accountId, privateKey, network);
 

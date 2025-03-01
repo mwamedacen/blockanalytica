@@ -29,8 +29,15 @@ import {
   createHederaAgent,
   HEDERA_AGENT_KIT_DESCRIPTION,
 } from "./agents/HederaAgent";
+import {
+  createEVMBlockchainAgent,
+  EVM_BLOCKCHAIN_AGENT_KIT_DESCRIPTION,
+} from "./agents/EVMBlockchainAgent";
 import { getChatAPI } from "./llms/ChatAPI";
-
+import { AuthTokenClaims } from "@privy-io/server-auth";
+import { getUserWallet } from "./utils/blockchainAgent";
+import { base } from "viem/chains";
+import { BaseWallet, Wallet } from "ethers";
 
 // Define the plan step interface
 interface PlanStep {
@@ -106,12 +113,38 @@ export class SupervisorAgent {
     ];
   }
 
+  async processQueryWithUser(userInput: string, claims: AuthTokenClaims, network: string): Promise<any> {
+
+    const wallet = await getUserWallet(claims.userId);
+
+    this.agents.push({
+      name: "EVMBlockchainAgent",
+      description: EVM_BLOCKCHAIN_AGENT_KIT_DESCRIPTION,
+      instance: createEVMBlockchainAgent(wallet, base),
+    });
+
+    const plan = await this.makePlan(userInput, network);
+
+    // if plan cointains EVMBlockchainAgent, then will route user to new mode for EVM blockchain agent
+    if (plan.plan.some(step => step.agent === "EVMBlockchainAgent")) {
+      const agent = this.agents.find(a => a.name === "EVMBlockchainAgent");
+      return this.executePlanWithAgents(userInput, plan, [agent?.instance]);
+    }
+
+    if (plan.plan.some(step => step.agent === "HederaAgent")) {
+      const agent = this.agents.find(a => a.name === "HederaAgent");
+      return this.executePlanWithAgents(userInput, plan, [agent?.instance]);
+    }
+
+    return this.processQuery(userInput, network);
+  }
+
   /**
-   * Process a user query and route to the appropriate agent(s) using LangGraph Supervisor
+   * Creates a plan for processing a user query using available agents
+   * @param userInput The user's query
+   * @returns A plan object with steps and final analysis
    */
-  async processQuery(userInput: string): Promise<any> {
-    console.log(`Processing user query: "${userInput}"`);
-    
+  private async makePlan(userInput: string, network: string): Promise<{ plan: PlanStep[], final_analysis: string }> {
     // Create agent descriptions for the prompt
     const agentDescriptions = this.agents
       .map(agent => `- ${agent.name}: ${agent.description}`)
@@ -144,33 +177,43 @@ export class SupervisorAgent {
     }
     `;
     
-    try {
-      // Ask the planning LLM to create a plan
-      const planResponse = await this.planningLLM.invoke([
-        new SystemMessage(planningPrompt),
-        new HumanMessage(userInput)
-      ]);
+    // Ask the planning LLM to create a plan
+    const planResponse = await this.planningLLM.invoke([
+      new SystemMessage(planningPrompt),
+      new HumanMessage(userInput),
+      new HumanMessage(network)
+    ]);
 
-      // Parse the response to get the plan
-      let plan: { plan: PlanStep[], final_analysis: string };
-      const content = typeof planResponse.content === 'string' 
-        ? planResponse.content 
-        : JSON.stringify(planResponse.content);
-      
-      try {
-        // Try to extract JSON from the content
-        const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || 
-                          content.match(/{[\s\S]*}/);
-                          
-        if (jsonMatch) {
-          plan = JSON.parse(jsonMatch[1] || jsonMatch[0]);
-        } else {
-          throw new Error("No valid JSON found in response");
-        }
-      } catch (error: any) {
-        console.error("Error parsing plan:", error);
-        throw new Error("Failed to parse plan");
+    // Parse the response to get the plan
+    const content = typeof planResponse.content === 'string' 
+      ? planResponse.content 
+      : JSON.stringify(planResponse.content);
+    
+    try {
+      // Try to extract JSON from the content
+      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || 
+                        content.match(/{[\s\S]*}/);
+                        
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1] || jsonMatch[0]);
+      } else {
+        throw new Error("No valid JSON found in response");
       }
+    } catch (error: any) {
+      console.error("Error parsing plan:", error);
+      throw new Error("Failed to parse plan");
+    }
+  }
+
+  /**
+   * Process a user query and route to the appropriate agent(s) using LangGraph Supervisor
+   */
+  async processQuery(userInput: string, network: string): Promise<any> {
+    console.log(`Processing user query: "${userInput}" on network: ${network}`);
+    
+    try {
+      // Get the plan from the makePlan function
+      const plan = await this.makePlan(userInput, network);
       
       if (!plan) {
         throw new Error("Failed to create a plan for processing the query");
@@ -178,73 +221,110 @@ export class SupervisorAgent {
 
       console.log("Plan created:", JSON.stringify(plan, null, 2));
       
-      // Create a map of agent names to their instances
-      const agents = this.agents.map(agent => agent.instance)
+      // Get only the agents specified in the plan
+      const agentsToUse = this.getAgentsFromPlan(plan);
       
-      const supervisorPrompt = `
-      You are a blockchain analysis supervisor agent responsible for orchestrating multiple specialized agents to analyze blockchain data.
-
-      Your task is to execute the following plan by invoking the appropriate agents in the specified order:
-      ${JSON.stringify(plan, null, 2)}
-
-      For each step in the plan:
-      1. Invoke the specified agent with the user's query
-      2. Collect and store the agent's response
-      3. Use the response as context for subsequent agent invocations if needed
-
-      Important note about agent capabilities:
-      - Some agents can handle arrays of data in a single invocation
-      - Other agents can only process one data point at a time
-      - When multiple data points need to be processed by an agent that handles one at a time,
-        the planner will include multiple steps with the same agent name
-      - Follow the plan exactly - if an agent appears multiple times, invoke it separately for each step
-
-      Follow these guidelines:
-      - Execute agents in series when their outputs depend on each other 
-      - Execute agents in parallel when their tasks are independent
-      - Combine the results according to the final_analysis instructions in the plan
-      - Maintain clear traceability of which agent produced which findings
-      - Format the final response in a clear, structured way
-
-      When agents execute in series you MUST inject the results of the previous agent as context for the next agent.
-
-      OUTPUT FORMAT:
-      You MUST return your response as a JSON object with the following structure:
-      {
-        "message": string, // A human-readable summary synthesizing all agent findings
-        "aggregatedAgentsData": object[] // An array containing the raw JSON responses from each agent executed
-      }
-
-      Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
-      `;
-
-      // Create the supervisor with the plan and agents
-      const supervisor = await createSupervisor({
-        llm: this.executionLLM,
-        agents,
-        prompt: supervisorPrompt,
-      });
-
-      const app = supervisor.compile();
-      
-      // Execute the plan using the supervisor
-      // Note: We're using the supervisor's invoke method directly
-      const result = await app.invoke({
-        messages: [new HumanMessage(userInput)],
-      }, {
-        configurable: {
-          thread_id : Math.random()
-        }
-      });
-      
-      const lastMessage = result.messages[result.messages.length - 1];
-      console.log('FINAL MESSAGE', lastMessage);
-      return lastMessage.content;
+      // Execute the plan with the selected agents
+      return await this.executePlanWithAgents(userInput, plan, agentsToUse);
     } catch (error: any) {
       console.error("Error processing query:", error);
       
       // Fallback to the old method if the supervisor approach fails
       console.log("Falling back to direct agent selection...");
+      throw error; // Re-throw the error or implement a fallback mechanism
     }
+  }
+
+  /**
+   * Get only the agents specified in the plan
+   * @param plan The execution plan
+   * @returns Array of agent instances to be used
+   */
+  private getAgentsFromPlan(plan: { plan: PlanStep[], final_analysis: string }): any[] {
+    // Extract unique agent names from the plan
+    const agentNames = [...new Set(plan.plan.map(step => step.agent))];
+    
+    // Find the corresponding agent instances
+    const agentsToUse = agentNames.map(name => {
+      const agent = this.agents.find(a => a.name === name);
+      if (!agent) {
+        throw new Error(`Agent ${name} specified in plan but not found in available agents`);
+      }
+      return agent.instance;
+    });
+
+    return agentsToUse;
+  }
+
+  /**
+   * Execute the plan with the specified agents using LangGraph Supervisor
+   * @param userInput The user's query
+   * @param plan The execution plan
+   * @param agents Array of agent instances to use
+   * @returns The result of the execution
+   */
+  private async executePlanWithAgents(
+    userInput: string, 
+    plan: { plan: PlanStep[], final_analysis: string },
+    agents: any[]
+  ): Promise<any> {
+    const supervisorPrompt = `
+    You are a blockchain analysis supervisor agent responsible for orchestrating multiple specialized agents to analyze blockchain data.
+
+    Your task is to execute the following plan by invoking the appropriate agents in the specified order:
+    ${JSON.stringify(plan, null, 2)}
+
+    For each step in the plan:
+    1. Invoke the specified agent with the user's query
+    2. Collect and store the agent's response
+    3. Use the response as context for subsequent agent invocations if needed
+
+    Important note about agent capabilities:
+    - Some agents can handle arrays of data in a single invocation
+    - Other agents can only process one data point at a time
+    - When multiple data points need to be processed by an agent that handles one at a time,
+      the planner will include multiple steps with the same agent name
+    - Follow the plan exactly - if an agent appears multiple times, invoke it separately for each step
+
+    Follow these guidelines:
+    - Execute agents in series when their outputs depend on each other 
+    - Execute agents in parallel when their tasks are independent
+    - Combine the results according to the final_analysis instructions in the plan
+    - Maintain clear traceability of which agent produced which findings
+    - Format the final response in a clear, structured way
+
+    When agents execute in series you MUST inject the results of the previous agent as context for the next agent.
+
+    OUTPUT FORMAT:
+    You MUST return your response as a JSON object with the following structure:
+    {
+      "message": string, // A human-readable summary synthesizing all agent findings
+      "aggregatedAgentsData": object[] // An array containing the raw JSON responses from each agent executed
+    }
+
+    Return ONLY this JSON structure, properly formatted, with no additional text or explanation.
+    `;
+
+    // Create the supervisor with the plan and agents
+    const supervisor = await createSupervisor({
+      llm: this.executionLLM,
+      agents,
+      prompt: supervisorPrompt,
+    });
+
+    const app = supervisor.compile();
+    
+    // Execute the plan using the supervisor
+    const result = await app.invoke({
+      messages: [new HumanMessage(userInput)],
+    }, {
+      configurable: {
+        thread_id : Math.random()
+      }
+    });
+    
+    const lastMessage = result.messages[result.messages.length - 1];
+    console.log('FINAL MESSAGE', lastMessage);
+    return lastMessage.content;
   }
 }
