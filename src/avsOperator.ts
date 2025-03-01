@@ -28,8 +28,13 @@ class AVSOperator {
   private avsDirectory: ethers.Contract;
   private ecdsaRegistryContract: ethers.Contract;
   private isRunning: boolean = false;
+  private reconnectAttempts: number = 0;
+  private maxReconnectAttempts: number = 10;
+  private reconnectDelay: number = 5000;
+  private heartbeatInterval: NodeJS.Timeout | null = null;
 
   constructor() {
+    console.log('Initializing AVS Operator...');
     // Initialize WebSocket provider and signer
     this.provider = new ethers.WebSocketProvider(process.env.WS_RPC_URL!);
     this.signer = new ethers.Wallet(process.env.PK_OPERATOR!, this.provider);
@@ -68,56 +73,36 @@ class AVSOperator {
       stakeRegistryABI, 
       this.signer
     );
+    console.log('AVS Operator initialized successfully');
   }
 
-  async registerOperator  ()  {
-    
-    // Registers as an Operator in EigenLayer.
-    // try {
-    //     const tx1 = await this.delegationManager.registerAsOperator({
-    //       initDelegationApprover: "0x0000000000000000000000000000000000000000",
-    //       //delegationApprover: "0x0000000000000000000000000000000000000000",
-    //       allocationDelay: 0,
-    //       metadataURI: ""
-    //     }, "");
-    //     await tx1.wait();
-    //     console.log("Operator registered to Core EigenLayer contracts");
-    // } catch (error) {
-    //     console.error("Error in registering as operator:", error);
-    // }
-    
+  async registerOperator() {
+    console.log('Starting operator registration process...');
     const salt = ethers.hexlify(ethers.randomBytes(32));
-    const expiry = Math.floor(Date.now() / 1000) + 3600; // Example expiry, 1 hour from now
+    const expiry = Math.floor(Date.now() / 1000) + (3 * 24 * 3600); // 3 days in seconds
 
-    // Define the output structure
     let operatorSignatureWithSaltAndExpiry = {
         signature: "",
         salt: salt,
         expiry: expiry
     };
 
-    // Calculate the digest hash, which is a unique value representing the operator, avs, unique value (salt) and expiration date.
     const operatorDigestHash = await this.avsDirectory.calculateOperatorAVSRegistrationDigestHash(
         this.signer.address, 
         await this.chainAnalyticaServiceManager.getAddress(), 
         salt, 
         expiry
     );
-    console.log(operatorDigestHash);
+    console.log('Generated operator digest hash:', operatorDigestHash);
     
-    // Sign the digest hash with the operator's private key
     console.log("Signing digest hash with operator's private key");
     const operatorSigningKey = new ethers.SigningKey(process.env.PK_OPERATOR!);
     const operatorSignedDigestHash = operatorSigningKey.sign(operatorDigestHash);
 
-    // Encode the signature in the required format
     operatorSignatureWithSaltAndExpiry.signature = ethers.Signature.from(operatorSignedDigestHash).serialized;
 
     console.log("Registering Operator to AVS Registry contract");
-
     
-    // Register Operator to AVS
-    // Per release here: https://github.com/Layr-Labs/eigenlayer-middleware/blob/v0.2.1-mainnet-rewards/src/unaudited/ECDSAStakeRegistry.sol#L49
     const tx2 = await this.ecdsaRegistryContract.registerOperatorWithSignature(
         operatorSignatureWithSaltAndExpiry,
         this.signer.address
@@ -126,12 +111,10 @@ class AVSOperator {
     console.log("Operator registered on AVS successfully");
 }
 
-
   private async handleTask(taskIndex: number, taskCreatedBlock: number, taskName: string) {
     try {
-      console.log(`Processing task ${taskIndex}: ${taskName}`);
+      console.log(`[${new Date().toISOString()}] Processing task ${taskIndex}: ${taskName}`);
 
-      // Make API call to get response
       const response = await fetch(process.env.API_CHAIN_ANALYTICA_HTTP!, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -143,20 +126,21 @@ class AVSOperator {
       }
 
       const { agentStatus, response: stringifiedJson } = await response.json();
+      console.log(`[${new Date().toISOString()}] API Response received for task ${taskIndex}`);
+      
       const parsedJson = JSON.parse(stringifiedJson.replace(/```json\n|\n```/g, ''));
 
-      // Upload to EigenDA
+      console.log(`[${new Date().toISOString()}] Uploading to EigenDA for task ${taskIndex}`);
       const uploadResult = await this.eigenDAClient.upload(
         JSON.stringify(parsedJson),
         this.identifier
       ) as unknown as { job_id: string };
 
-      console.log('Upload Job ID:', uploadResult.job_id);
+      console.log(`[${new Date().toISOString()}] Upload Job ID for task ${taskIndex}:`, uploadResult.job_id);
 
-      // Format response
       const taskResponse = `${uploadResult.job_id}:${parsedJson.message}`;
 
-      // Send transaction
+      console.log(`[${new Date().toISOString()}] Sending response transaction for task ${taskIndex}`);
       const tx = await this.chainAnalyticaServiceManager.respondToTask(
         { name: taskName, taskCreatedBlock },
         taskIndex,
@@ -164,49 +148,87 @@ class AVSOperator {
       );
       await tx.wait();
 
-      // Wait for EigenDA confirmation
-      //await this.eigenDAClient.waitForStatus(uploadResult.job_id, 'CONFIRMED');
-
-      console.log(`Task ${taskIndex} completed successfully`);
+      console.log(`[${new Date().toISOString()}] Task ${taskIndex} completed successfully`);
     } catch (error) {
-      console.error(`Error handling task ${taskIndex}:`, error);
+      console.error(`[${new Date().toISOString()}] Error handling task ${taskIndex}:`, error);
     }
   }
 
+  private startHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+    }
+    
+    this.heartbeatInterval = setInterval(() => {
+      console.log(`[${new Date().toISOString()}] Operator heartbeat - Status: Running, WebSocket Connected: ${this.provider.websocket.readyState === 1}`);
+    }, 30000); // Log every 30 seconds
+  }
+
   async start() {
-    //await this.handleTask(4, 3432206, "resolve nick.eth");
     if (this.isRunning) {
       console.log('Operator is already running');
       return;
     }
 
-    console.log('Starting AVS operator...');
+    console.log(`[${new Date().toISOString()}] Starting AVS operator...`);
 
     // Set up WebSocket event listener
     this.chainAnalyticaServiceManager.on('NewTaskCreated', async (taskIndex: number, task: { taskCreatedBlock: number, name: string }) => {
+      console.log(`[${new Date().toISOString()}] New task received: ${taskIndex}`);
       await this.handleTask(taskIndex, task.taskCreatedBlock, task.name);
     });
 
     // Set up WebSocket error handling and reconnection
-    this.provider.on('error', async (error) => {
-      console.error('WebSocket error:', error);
+    this.provider.websocket.on('close', async () => {
+      console.log(`[${new Date().toISOString()}] WebSocket connection closed. Attempting to reconnect...`);
       await this.reconnect();
     });
 
-    this.isRunning = true;
-    console.log('AVS operator is running with WebSocket connection');
+    this.provider.on('error', async (error) => {
+      console.error(`[${new Date().toISOString()}] WebSocket error:`, error);
+      await this.reconnect();
+    });
 
-    // Keep the process alive
+    // Start heartbeat monitoring
+    this.startHeartbeat();
+
+    this.isRunning = true;
+    console.log(`[${new Date().toISOString()}] AVS operator is running with WebSocket connection`);
+
+    // Set up process handlers
     process.on('SIGINT', () => this.stop());
     process.on('SIGTERM', () => this.stop());
+    process.on('uncaughtException', (error) => {
+      console.error(`[${new Date().toISOString()}] Uncaught Exception:`, error);
+      this.reconnect();
+    });
+    process.on('unhandledRejection', (error) => {
+      console.error(`[${new Date().toISOString()}] Unhandled Rejection:`, error);
+      this.reconnect();
+    });
 
     // Keep the process running indefinitely
-    return new Promise(() => {});
+    return new Promise(() => {
+      setInterval(() => {
+        // Additional check to ensure we're still connected
+        if (!this.isRunning || this.provider.websocket.readyState !== 1) {
+          console.log(`[${new Date().toISOString()}] Connection check failed, initiating reconnect...`);
+          this.reconnect();
+        }
+      }, 60000); // Check every minute
+    });
   }
 
   private async reconnect() {
     try {
-      await this.stop();
+      console.log(`[${new Date().toISOString()}] Attempting to reconnect... (Attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`);
+      
+      if (this.heartbeatInterval) {
+        clearInterval(this.heartbeatInterval);
+      }
+      
+      await this.stop(false); // Don't exit process on reconnect
+      
       this.provider = new ethers.WebSocketProvider(process.env.WS_RPC_URL!);
       this.signer = new ethers.Wallet(process.env.PK_OPERATOR!, this.provider);
       this.chainAnalyticaServiceManager = new ethers.Contract(
@@ -214,34 +236,60 @@ class AVSOperator {
         chainAnalyticaServiceManagerABI,
         this.signer
       );
+      
       await this.start();
+      this.reconnectAttempts = 0; // Reset attempts on successful reconnect
+      console.log(`[${new Date().toISOString()}] Reconnection successful`);
     } catch (error) {
-      console.error('Failed to reconnect:', error);
-      // Attempt to reconnect again after delay
-      setTimeout(() => this.reconnect(), 5000);
+      console.error(`[${new Date().toISOString()}] Failed to reconnect:`, error);
+      this.reconnectAttempts++;
+      
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        console.log(`[${new Date().toISOString()}] Retrying in ${this.reconnectDelay/1000} seconds...`);
+        setTimeout(() => this.reconnect(), this.reconnectDelay);
+      } else {
+        console.error(`[${new Date().toISOString()}] Max reconnection attempts reached. Please check your connection and restart the operator.`);
+        process.exit(1);
+      }
     }
   }
 
-  async stop() {
+  async stop(shouldExit: boolean = true) {
     if (!this.isRunning) {
       console.log('Operator is not running');
       return;
     }
 
-    console.log('Stopping AVS operator...');
+    console.log(`[${new Date().toISOString()}] Stopping AVS operator...`);
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+    }
     this.chainAnalyticaServiceManager.removeAllListeners();
     await this.provider.destroy();
     this.isRunning = false;
-    console.log('AVS operator stopped');
-    process.exit(0);
+    console.log(`[${new Date().toISOString()}] AVS operator stopped`);
+    
+    if (shouldExit) {
+      process.exit(0);
+    }
   }
 }
 
 // Start the operator
-const operator = new AVSOperator();
-//operator.registerOperator().finally(() => {
-operator.start().catch((error: Error) => {
-  console.error('Failed to start operator:', error);
-  process.exit(1);
-});
-//});
+async function main() {
+  const operator = new AVSOperator();
+  
+  try {
+    await operator.registerOperator(); // can fail if operator is already registered. TODO: handle this gracefully by checking if operator is already registered
+  } catch (error) {
+    console.error(`[${new Date().toISOString()}] Failed to register operator:`, error);
+  }
+  try {
+    await operator.start();
+  } catch (error: any) {
+    console.error(`[${new Date().toISOString()}] Failed to start operator:`, error);
+    process.exit(1);
+  }
+}
+
+main();
