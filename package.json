@@ -11,7 +11,8 @@
     "start:api": "node dist/src/index.js",
     "dev:api": "tsx src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:cache": "tsx src/utils/CachedFunctionExample.ts"
+    "test:cache": "tsx src/utils/CachedFunctionExample.ts",
+    "operator": "tsx src/avsOperator.ts"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,8 @@
     "@langchain/openai": "^0.4.4",
     "@story-protocol/core-sdk": "1.3.0-beta.3",
     "dotenv": "^16.4.7",
+    "eigenda-sdk": "^0.1.0",
+    "ethers": "^6.13.5",
     "hedera-agent-kit": "^1.0.4",
     "next": "^15.1.7",
     "openai": "^4.85.4",
