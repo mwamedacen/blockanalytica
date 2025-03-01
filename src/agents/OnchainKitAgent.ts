@@ -58,4 +58,4 @@ export function createOnchainKitAgent() {
     checkpointSaver: agentCheckpointer,
     responseFormat: responseSchema,
   });
-} 
+}
