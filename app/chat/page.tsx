@@ -115,7 +115,7 @@ export default function ChatPage() {
 
       let jsonResponse = null;
 
-      if (stringResponse.includes("```json")) {
+      if (stringResponse && stringResponse.includes("```json")) {
         jsonResponse = JSON.parse(stringResponse.replaceAll("```json", "").replaceAll("```", ""));
       } else if (responseJson && responseJson.response){
         jsonResponse = JSON.parse(responseJson.response);
