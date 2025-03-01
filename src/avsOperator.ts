@@ -199,6 +199,9 @@ class AVSOperator {
     // Keep the process alive
     process.on('SIGINT', () => this.stop());
     process.on('SIGTERM', () => this.stop());
+
+    // Keep the process running indefinitely
+    return new Promise(() => {});
   }
 
   private async reconnect() {
@@ -237,8 +240,8 @@ class AVSOperator {
 // Start the operator
 const operator = new AVSOperator();
 //operator.registerOperator().finally(() => {
-  operator.start().catch((error: Error) => {
-    console.error('Failed to start operator:', error);
-    process.exit(1);
-  });
+operator.start().catch((error: Error) => {
+  console.error('Failed to start operator:', error);
+  process.exit(1);
+});
 //});
