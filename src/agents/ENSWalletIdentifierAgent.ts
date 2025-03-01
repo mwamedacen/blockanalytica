@@ -25,10 +25,8 @@ const SYSTEM_PROMPT = `
   STEPS:
   1. Extract the ENS domain from the user query. An ENS domain is ANY text string that ends with ".eth" - for example:
      - vitalik.eth
-     - nick.eth 
-     - mycoolname.eth
      - any-string-at-all.eth
-  2. Use the ens_lookup tool to resolve the domain to an Ethereum address
+  2. Always use the ens_lookup tool to resolve the domain to an Ethereum address
   3. Return the results
   
   If no ENS domain (text ending in .eth) is found in the query, politely inform the user that you need an ENS domain to resolve.

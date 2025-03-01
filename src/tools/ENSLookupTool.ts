@@ -12,7 +12,7 @@ const ENSLookupSchema = z.object({
 const getEthClient = () => {
   return createPublicClient({
     chain: mainnet,
-    transport: http(process.env.ENS_RPC ||"https://eth.llamarpc.com")
+    transport: http(process.env.ETHEREUM_RPC_URL || "https://eth.llamarpc.com")
   });
 };
 
@@ -20,6 +20,7 @@ const getEthClient = () => {
 export const ENSLookupTool = tool(
   async ({ ens_domain }: z.infer<typeof ENSLookupSchema>) => {
     try {
+      console.log(`Processing ENS lookup for domain: ${ens_domain}`);
       // Ensure the domain has .eth suffix if not provided
       const ensName = ens_domain.includes('.') ? ens_domain : `${ens_domain}.eth`;
       
@@ -33,6 +34,7 @@ export const ENSLookupTool = tool(
       if (!address) {
         throw new Error(`No address found for ENS domain: ${ensName}`);
       }
+      console.log(`Successfully resolved ${ensName} to ${address}`);
       
       return JSON.stringify({ 
         success: true, 
