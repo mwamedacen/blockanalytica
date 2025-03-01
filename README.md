@@ -104,3 +104,50 @@ The system can be accessed through multiple interfaces:
   - Structured data visualization components
   - Interactive relationship charts (ZachXBT-style)
   - Dynamic token and wallet activity dashboards
+
+## 🔐 Authentication
+
+The application supports multiple authentication methods:
+
+- **Wallet Connect**: Connect directly with your Web3 wallet
+- **Privy Authentication**: Email, social login, and embedded wallet options through Privy
+
+### Setting Up Authentication
+
+1. **Wallet Connect**: Configured through OnchainKit
+2. **Privy Authentication**: 
+   - Create an account at [Privy](https://privy.io/)
+   - Get your Privy App ID
+   - Add it to your `.env` file as `NEXT_PUBLIC_PRIVY_APP_ID`
+
+## 🔗 Blockchain Integration
+
+The application uses a server-side blockchain agent to interact with various blockchain networks on behalf of users. This approach provides several benefits:
+
+- **Enhanced Security**: Private keys are encrypted and stored securely in the database
+- **Simplified UX**: Users can authenticate with email or social login without needing a wallet
+- **Cross-Chain Support**: Interact with multiple blockchain networks from a single interface
+- **Gas Abstraction**: Potential to abstract gas fees away from users
+
+### Server-Side Wallet Management
+
+When a user authenticates with Privy, the system:
+
+1. Checks if the user already has a wallet in the database
+2. If not, generates a new wallet and encrypts the private key
+3. Stores the encrypted private key in Supabase, associated with the user's Privy ID
+
+### Blockchain Interactions
+
+The server-side agent can:
+
+- Send transactions on behalf of users
+- Call smart contract functions
+- Retrieve wallet balances and transaction history
+- Support multiple blockchain networks (Ethereum, Base, etc.)
+
+### Setting Up Blockchain Integration
+
+1. Create a Supabase account and set up the database schema (see `supabase/README.md`)
+2. Add RPC URLs for the blockchain networks you want to support to your `.env` file
+3. Configure the Privy authentication as described above
