@@ -27,11 +27,11 @@ export const HistoricalEnsDomainsFetcherTool = tool(
       
       const queryTimerId = `HistoricalEnsDomainsFetcherTool-${wallet_address}-${Date.now()}`;
       console.log(`[${new Date().toISOString()}] Starting Dune query for historical ENS domains - wallet: ${wallet_address}, queryId: ${DUNE_QUERY_ID}`);
-      console.time(queryTimerId);
+      // console.time(queryTimerId);
       
       const response = await runDuneQuery(queryArgs);
       
-      console.timeEnd(queryTimerId);
+      // console.timeEnd(queryTimerId);
       console.log(`[${new Date().toISOString()}] Completed Dune query for historical ENS domains - wallet: ${wallet_address}, rows returned: ${response.result?.rows?.length || 0}`);
 
       // Return raw rows from response

@@ -56,11 +56,11 @@ export async function POST(request: NextRequest) {
     // Process the query through supervisor agent
     console.log(`[${new Date().toISOString()}] Processing query through supervisor agent: ${message} on network: ${network}`);
     const queryTimerId = `supervisor-query-${Date.now()}`;
-    console.time(queryTimerId);
+    // console.time(queryTimerId);
     
     const response = claims ? await supervisorAgent.processQueryWithUser(message, claims, network): await supervisorAgent.processQuery(message, network);
     
-    console.timeEnd(queryTimerId);
+    // console.timeEnd(queryTimerId);
     console.log(`[${new Date().toISOString()}] Completed processing query, response:`, response);
     // Check if the response is from the OnchainKitAgent
     let isOnchainKitResponse = false;

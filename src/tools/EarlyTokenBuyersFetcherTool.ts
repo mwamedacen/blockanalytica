@@ -37,11 +37,11 @@ export const EarlyTokenBuyersFetcherTool = tool(
         
         const queryTimerId = `EarlyTokenBuyersFetcherTool-${token_address}-${Date.now()}`;
         console.log(`[${new Date().toISOString()}] Starting Dune query for early token buyers - token: ${token_address}, limit: ${limit}, queryId: ${DUNE_QUERY_ID}`);
-        console.time(queryTimerId);
+        // console.time(queryTimerId);
         
         const response = await runDuneQuery(queryArgs);
         
-        console.timeEnd(queryTimerId);
+        // console.timeEnd(queryTimerId);
         console.log(`[${new Date().toISOString()}] Completed Dune query for early token buyers - token: ${token_address}, rows returned: ${response.result?.rows?.length || 0}`);
 
         return {

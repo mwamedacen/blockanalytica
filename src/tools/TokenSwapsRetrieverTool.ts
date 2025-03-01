@@ -34,14 +34,14 @@ export const TokenSwapsRetrieverTool = tool(
         query_parameters: queryParameters
       };
       
-      const queryTimerId = `TokenSwapsRetrieverTool-${token_address}-${side}-${Date.now()}-${Math.random()}`;
-      console.log(`[${new Date().toISOString()}] Starting Dune query for token swaps - token: ${token_address}, side: ${side}, dates: ${start_date} to ${end_date}, limit: ${limit}, queryId: ${DUNE_QUERY_ID}`);
-      console.time(queryTimerId);
+      const queryTimerId = `TokenSwapsRetrieverTool-${token_address}-${Date.now()}`;
+      console.log(`[${new Date().toISOString()}] Starting Dune query for token swaps - token: ${token_address}, queryId: ${DUNE_QUERY_ID}`);
+      // console.time(queryTimerId);
       
       const response = await runDuneQuery(queryArgs);
       
-      console.timeEnd(queryTimerId);
-      console.log(`[${new Date().toISOString()}] Completed Dune query for token swaps - token: ${token_address}, side: ${side}, rows returned: ${response.result?.rows?.length || 0}`);
+      // console.timeEnd(queryTimerId);
+      console.log(`[${new Date().toISOString()}] Completed Dune query for token swaps - token: ${token_address}, rows returned: ${response.result?.rows?.length || 0}`);
 
       // Return raw rows from response
       return JSON.stringify(response.result?.rows || []);

@@ -27,11 +27,11 @@ export const FundingSourceTool = tool(
       
       const queryTimerId = `FundingSourceTool-${wallet_address}-${Date.now()}`;
       console.log(`[${new Date().toISOString()}] Starting Dune query for funding source - wallet: ${wallet_address}, queryId: ${DUNE_QUERY_ID}`);
-      console.time(queryTimerId);
+      // console.time(queryTimerId);
       
       const response = await runDuneQuery(queryArgs);
       
-      console.timeEnd(queryTimerId);
+      // console.timeEnd(queryTimerId);
       console.log(`[${new Date().toISOString()}] Completed Dune query for funding source - wallet: ${wallet_address}, rows returned: ${response.result?.rows?.length || 0}`);
 
       // Return raw rows from response
@@ -49,4 +49,4 @@ export const FundingSourceTool = tool(
     description: "Retrieves the wallet that transferred native tokens to it the very first time. It returns at most one address.",
     schema: FundingSourceSchema,
   }
-); 
+);

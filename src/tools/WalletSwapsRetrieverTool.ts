@@ -36,12 +36,12 @@ export const WalletSwapsRetrieverTool = tool(
       };
       
       const queryTimerId = `WalletSwapsRetrieverTool-${wallet_address}-${Date.now()}`;
-      console.log(`[${new Date().toISOString()}] Starting Dune query for wallet swaps - wallet: ${wallet_address}, dates: ${start_date} to ${end_date}, limit: ${limit}, queryId: ${DUNE_QUERY_ID}`);
-      console.time(queryTimerId);
+      console.log(`[${new Date().toISOString()}] Starting Dune query for wallet swaps - wallet: ${wallet_address}, queryId: ${DUNE_QUERY_ID}`);
+      // console.time(queryTimerId);
       
       const response = await runDuneQuery(queryArgs);
       
-      console.timeEnd(queryTimerId);
+      // console.timeEnd(queryTimerId);
       console.log(`[${new Date().toISOString()}] Completed Dune query for wallet swaps - wallet: ${wallet_address}, rows returned: ${response.result?.rows?.length || 0}`);
       // Return raw rows from response
       return JSON.stringify(response.result?.rows || []);
