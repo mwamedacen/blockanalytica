@@ -14,7 +14,7 @@ async function main() {
     console.log("Processing...");
     
     // Process the user query
-    const result = await supervisor.processQuery(userQuery);
+    const result = await supervisor.processQuery(userQuery, "ethereum");
     
     // Print the results
     console.log("\n=== Analysis Results ===");

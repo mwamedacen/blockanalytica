@@ -51,7 +51,7 @@ export function PrivyLogin() {
       onClick={login}
       className="privy-button"
     >
-      Login with Privy
+      Login
     </button>
   );
 } 

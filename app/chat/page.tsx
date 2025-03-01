@@ -34,6 +34,12 @@ interface OnchainKitAgentResponse {
   };
 }
 
+// Define the suggestion type
+interface Suggestion {
+  title: string;
+  query: string;
+}
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -47,9 +53,10 @@ export default function ChatPage() {
   const [onchainKitResponse, setOnchainKitResponse] = useState<OnchainKitAgentResponse | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [inputRef, setInputRef] = useState<HTMLInputElement | null>(null);
+  const [selectedNetwork, setSelectedNetwork] = useState('ethereum');
 
   // Suggestions data
-  const suggestions = [
+  const suggestions: Suggestion[] = [
     {
       title: "Find Early Token Buyers",
       query: "Find wallets that were among first 200 to buy $AIXBT and $VIRTUAL"
@@ -70,6 +77,31 @@ export default function ChatPage() {
       title: "Swap Tokens",
       query: "I want to swap kaito to usdc on Base"
     }
+  ];
+
+  // Add useEffect to load selected network from localStorage on component mount
+  useEffect(() => {
+    // Get saved network from localStorage or use default 'ethereum'
+    const savedNetwork = localStorage.getItem('selectedNetwork');
+    if (savedNetwork) {
+      setSelectedNetwork(savedNetwork);
+    }
+  }, []);
+
+  // Handle network change and save to localStorage
+  const handleNetworkChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const network = e.target.value;
+    setSelectedNetwork(network);
+    localStorage.setItem('selectedNetwork', network);
+  };
+
+  const networks = [
+    { id: 'ethereum', name: 'Ethereum' },
+    { id: 'polygon', name: 'Polygon' },
+    { id: 'arbitrum', name: 'Arbitrum' },
+    { id: 'optimism', name: 'Optimism' },
+    { id: 'base', name: 'Base' },
+    { id: 'hedera', name: 'Hedera' },
   ];
 
   useEffect(() => {
@@ -97,14 +129,15 @@ export default function ChatPage() {
     setOnchainKitResponse(null);
     
     try {
-      // Send to API endpoint
+      // Send to API endpoint with selected network
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          message: userMessage
+          message: userMessage,
+          network: selectedNetwork // Include selected network in the request
         }),
       });
       
@@ -175,7 +208,7 @@ export default function ChatPage() {
     <div className="agent-capabilities-chat">
       <h3>Example Queries</h3>
       <ul>
-        {suggestions.map((suggestion, index) => (
+        {suggestions.map((suggestion: Suggestion, index: number) => (
           <li key={index}>
             <button 
               className="suggestion-button" 
@@ -193,10 +226,25 @@ export default function ChatPage() {
     <Providers>
       <div className="chat-container">
         <div className="chat-header">
-          <h1>BlockAnalytica Chat</h1> 
-          <div className="header-right">
+          <div className="rounded-lg shadow-md flex items-center">
+            <h1>BlockAnalytica</h1>
+          </div>
+            <div className="header-right">
+            <select
+                id="network"
+                value={selectedNetwork}
+                onChange={handleNetworkChange}
+                className="w-full p-2 border border-gray-300 rounded-md m-4"
+                style={{ backgroundColor: '#3B82F6' }}
+              >
+                {networks.map((network) => (
+                  <option key={network.id} value={network.id}>
+                    {network.name}
+                  </option>
+                ))}
+            </select>
             <PrivyLogin />
-            <WalletDefault />
+            {/* <WalletDefault /> */}
           </div>
         </div>
         

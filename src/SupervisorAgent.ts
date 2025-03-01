@@ -113,7 +113,7 @@ export class SupervisorAgent {
     ];
   }
 
-  async processQueryWithUser(userInput: string, claims: AuthTokenClaims): Promise<any> {
+  async processQueryWithUser(userInput: string, claims: AuthTokenClaims, network: string): Promise<any> {
 
     const wallet = await getUserWallet(claims.userId);
 
@@ -123,23 +123,20 @@ export class SupervisorAgent {
       instance: createEVMBlockchainAgent(wallet, base),
     });
 
-    const plan = await this.makePlan(userInput);
+    const plan = await this.makePlan(userInput, network);
 
     // if plan cointains EVMBlockchainAgent, then will route user to new mode for EVM blockchain agent
     if (plan.plan.some(step => step.agent === "EVMBlockchainAgent")) {
-      return this.processEVMBlockchainAgent(userInput, plan, wallet);
+      const agent = this.agents.find(a => a.name === "EVMBlockchainAgent");
+      return this.executePlanWithAgents(userInput, plan, [agent?.instance]);
     }
 
-    return this.processQuery(userInput);
-  }
+    if (plan.plan.some(step => step.agent === "HederaAgent")) {
+      const agent = this.agents.find(a => a.name === "HederaAgent");
+      return this.executePlanWithAgents(userInput, plan, [agent?.instance]);
+    }
 
-  private async processEVMBlockchainAgent(userInput: string, plan: {
-    plan: PlanStep[];
-    final_analysis: string;
-  }, wallet: BaseWallet): Promise<any> {
-
-    const agent = this.agents.find(a => a.name === "EVMBlockchainAgent");
-    return this.executePlanWithAgents(userInput, plan, [agent?.instance]);
+    return this.processQuery(userInput, network);
   }
 
   /**
@@ -147,7 +144,7 @@ export class SupervisorAgent {
    * @param userInput The user's query
    * @returns A plan object with steps and final analysis
    */
-  private async makePlan(userInput: string): Promise<{ plan: PlanStep[], final_analysis: string }> {
+  private async makePlan(userInput: string, network: string): Promise<{ plan: PlanStep[], final_analysis: string }> {
     // Create agent descriptions for the prompt
     const agentDescriptions = this.agents
       .map(agent => `- ${agent.name}: ${agent.description}`)
@@ -183,7 +180,8 @@ export class SupervisorAgent {
     // Ask the planning LLM to create a plan
     const planResponse = await this.planningLLM.invoke([
       new SystemMessage(planningPrompt),
-      new HumanMessage(userInput)
+      new HumanMessage(userInput),
+      new HumanMessage(network)
     ]);
 
     // Parse the response to get the plan
@@ -210,12 +208,12 @@ export class SupervisorAgent {
   /**
    * Process a user query and route to the appropriate agent(s) using LangGraph Supervisor
    */
-  async processQuery(userInput: string): Promise<any> {
-    console.log(`Processing user query: "${userInput}"`);
+  async processQuery(userInput: string, network: string): Promise<any> {
+    console.log(`Processing user query: "${userInput}" on network: ${network}`);
     
     try {
       // Get the plan from the makePlan function
-      const plan = await this.makePlan(userInput);
+      const plan = await this.makePlan(userInput, network);
       
       if (!plan) {
         throw new Error("Failed to create a plan for processing the query");
