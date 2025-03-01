@@ -41,9 +41,6 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
-      eigenda-sdk:
-        specifier: ^0.1.0
-        version: 0.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       ethers:
         specifier: ^6.13.5
         version: 6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -1783,10 +1780,6 @@ packages:
   eciesjs@0.4.14:
     resolution: {integrity: sha512-eJAgf9pdv214Hn98FlUzclRMYWF7WfoLlkS9nWMTm1qcCwn6Ad4EGD9lr9HXMBfSrZhYQujRE+p0adPRkctC6A==}
     engines: {bun: '>=1', deno: '>=2', node: '>=16'}
-
-  eigenda-sdk@0.1.0:
-    resolution: {integrity: sha512-4SOga6IRILEb5rgdUs/QqDmbc+ujoIrGmUYWcty5y/eJnm9/rggaCPS/bkZxdw82WjF2mfXtXPYuLXCvXVLBhg==}
-    engines: {node: '>=18.0.0'}
 
   elliptic@6.6.1:
     resolution: {integrity: sha512-RaddvvMatK2LJHqFJ+YA4WysVN5Ita9E35botqIYspQ4TkRAlCicdzKOjlyv/1Za5RyTNn7di//eEV0uTAfe3g==}
@@ -5013,16 +5006,6 @@ snapshots:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
 
-  eigenda-sdk@0.1.0(bufferutil@4.0.9)(utf-8-validate@5.0.10):
-    dependencies:
-      axios: 1.7.9(debug@4.4.0)
-      dotenv: 16.4.7
-      ethers: 6.13.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - utf-8-validate
-
   elliptic@6.6.1:
     dependencies:
       bn.js: 4.12.1
@@ -5354,7 +5337,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.0))
+      retry-axios: 2.6.0(axios@1.7.9)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -5966,7 +5949,7 @@ snapshots:
 
   resolve-pkg-maps@1.0.0: {}
 
-  retry-axios@2.6.0(axios@1.7.9(debug@4.4.0)):
+  retry-axios@2.6.0(axios@1.7.9):
     dependencies:
       axios: 1.7.9(debug@4.4.0)
 
