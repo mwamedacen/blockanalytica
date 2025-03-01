@@ -43,10 +43,8 @@ export const WalletSwapsRetrieverTool = tool(
       
       console.timeEnd(queryTimerId);
       console.log(`[${new Date().toISOString()}] Completed Dune query for wallet swaps - wallet: ${wallet_address}, rows returned: ${response.result?.rows?.length || 0}`);
-      // Get all rows and randomly select 3 swaps
-      const allRows = response.result?.rows || [];
-      const shuffled = allRows.sort(() => 0.5 - Math.random());
-      return JSON.stringify(shuffled.slice(0, 10));
+      // Return raw rows from response
+      return JSON.stringify(response.result?.rows || []);
     } catch (error: any) {
       console.error("Error retrieving wallet swaps:", error);
       throw new Error(`Failed to retrieve wallet swaps: ${error.message}`);
