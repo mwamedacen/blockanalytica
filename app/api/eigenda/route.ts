@@ -1,9 +1,10 @@
 import { EigenDAClient } from 'eigenda-sdk';
 import { NextResponse } from 'next/server';
-export async function GET(request: Request, { params }: { params: { jobId: string } }) {
+export async function GET(request: Request) {
   try {
-    // Get job ID from path params
-    const jobId = params.jobId;
+    // Get job ID from query string
+    const { searchParams } = new URL(request.url);
+    const jobId = searchParams.get('jobId');
 
     if (!jobId) {
       return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
