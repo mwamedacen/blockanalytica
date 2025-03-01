@@ -66,6 +66,9 @@ const SYSTEM_PROMPT = `
         * The ratio between these volumes (copy traders volume / target wallet volume)
     - Include 3 example copy trader addresses (these are just samples, not the complete list)
     - Begin the analysis message by briefly explaining the methodology used, e.g. "Looking at the last 3 distinct token swaps from the target wallet, we identified..."
+
+  In general, you MUST report the total number of copy traders, amount traded by target wallet versus copy traders and the ratio.
+  </IMPORTANT_CONSTRAINTS>
 `;
 /**
  * Creates a Copy Trader Detector Agent that analyzes potential copy trading behavior
